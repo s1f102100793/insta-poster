@@ -2,6 +2,7 @@ import { Elysia, NotFoundError, t } from "elysia";
 import { eq } from "drizzle-orm";
 import { todos } from "./db/schema";
 import { db } from "./db";
+import { instagram } from "./sns/instagram";
 
 const TodoDTO = t.Object({
   title: t.String(),
@@ -100,4 +101,9 @@ export const api = new Elysia({ prefix: "/api" })
           },
         },
       ),
-  );
+  )
+  .group("/posts", (router) =>
+    router.post("/", async ({ body }) => {
+      await instagram.getPosts();
+      return body;
+    }, ));
