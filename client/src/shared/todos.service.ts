@@ -1,18 +1,9 @@
 import { edenFetch } from "@elysiajs/eden";
 import { App } from "server";
 import env from "../env";
+import { handleError } from "../utils/handleError";
 
-const fetch = edenFetch<App>(env.SERVER_URL);
-
-function handleError<T>({
-  data,
-  error,
-}: { data: T; error: null } | { data: null; error: Error }): T {
-  if (error) {
-    throw error;
-  }
-  return data;
-}
+export const fetch = edenFetch<App>(env.SERVER_URL);
 
 async function getTodos() {
   return fetch("/api/todos/", { method: "GET" }).then(handleError);
