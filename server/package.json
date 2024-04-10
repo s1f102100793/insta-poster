@@ -29,6 +29,7 @@
     "@libsql/client": "^0.4.0-pre.7",
     "drizzle-orm": "^0.28.6",
     "elysia": "^0.7.15",
+    "playwright": "1.41.0",
     "zod": "^3.22.2"
   },
   "exports": {
