@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
 import { instagram } from "./sns/instagram";
+import { instagramTemplate } from "./sns/instagram/template";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
@@ -10,7 +11,7 @@ export const api = new Elysia({ prefix: "/api" })
       const title = formData.get("title") as string
       const image1 = formData.get("image1")
       const image2 = formData.get("image2")
-
-      await instagram.makePost(member, title, youtubeUrl);
+      
+      const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
     }
   ));

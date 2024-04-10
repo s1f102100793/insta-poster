@@ -1,10 +1,16 @@
+import { youtube } from "../youtube";
+
 export const instagramTemplate = {
-  post(member:string, title:string, youtubeUrl:string) {
+  async post(member:string, title:string, youtubeUrl:string) {
+    const videoId = youtube.getVideoId(youtubeUrl) as string
+    const youtubeTitle = await youtube.getVideoTitle(videoId)
+
     return `
     #東海オンエア${member}
     【${title}】
 
     Source: 
+    ${youtubeTitle}
     ${youtubeUrl}
 
 
