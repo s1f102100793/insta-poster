@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { instagram } from "./sns/instagram";
 import { instagramTemplate } from "./sns/instagram/template";
 import { sharpUtils } from "./sharp";
+import { env } from "./env";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
@@ -16,7 +17,10 @@ export const api = new Elysia({ prefix: "/api" })
       const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
       console.log(instagramPostText)
       if (image1 && screenshot) {
-        const outputPath = `../output/${member}_${title}.png`
+        const outputPath = env.OUTPUT_PATH !== undefined 
+          ? `${env.OUTPUT_PATH}/${member}_${title}.png`
+          : `../output/${member}_${title}.png`;
+
         const mergedImage = await sharpUtils.mergeImages(image1, screenshot, outputPath)
         console.log(mergedImage)
       }
