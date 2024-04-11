@@ -21,11 +21,10 @@ export const sharpUtils = {
     });
     await trimmedImage.toFile(outputPath);     
   },
-  async mergeImages(image1: File, screenshot: File, outputPath: string) {
-    const image1Buffer = await image1.arrayBuffer();
+  async mergeImages(image1Path: string, screenshot: File, outputPath: string) {
     const screenshotBuffer = await screenshot.arrayBuffer();
 
-    const sharpImage1 = sharp(image1Buffer);
+    const sharpImage1 = sharp(image1Path); 
     const sharpScreenshot = sharp(screenshotBuffer);
 
     const image1Metadata = await sharpImage1.metadata() as sharpMetadata;
@@ -39,9 +38,6 @@ export const sharpUtils = {
 
     const resizedImage1Metadata = await sharp(resizedImage1Buffer).metadata() as sharpMetadata;
     const resizedScreenshotMetadata = await sharp(resizedScreenshotBuffer).metadata() as sharpMetadata;
-
-    console.log("resizedImage1 size", resizedImage1Metadata.width, resizedImage1Metadata.height);
-    console.log("resizedScreenshot size", resizedScreenshotMetadata.width, resizedScreenshotMetadata.height);
 
     const canvas = sharp({
       create: {

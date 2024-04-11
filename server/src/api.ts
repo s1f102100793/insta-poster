@@ -27,6 +27,6 @@ export const api = new Elysia({ prefix: "/api" })
       const mergeImagesOutputPath = env.OUTPUT_PATH !== undefined 
         ? `${env.OUTPUT_PATH}/完成/${member}_${title}_2.png`
         : `../output/${member}_${title}_2.png`;
-      await sharpUtils.mergeImages(image1, screenshot, mergeImagesOutputPath)
+      await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
     }
   ));
