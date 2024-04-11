@@ -3,9 +3,9 @@ import { postsService } from "./shared/posts.service";
 
 function App() {
   const [image1, setImage1] = useState<File | null>(null);
-  const [image2, setImage2] = useState<File | null>(null);
+  const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [selectedMember, setSelectedMember] = useState("");
+  const [selectedMember, setSelectedMember] = useState("てつや");
   const [title, setTitle] = useState("");
 
   const memberColors: Record<string, string> = {
@@ -48,13 +48,13 @@ function App() {
   };
 
   const postSns = async (): Promise<void> => {
-    if (!selectedMember || !youtubeUrl || !title || !image1 || !image2) {
+    if (!selectedMember || !youtubeUrl || !title || !image1 || !screenshot) {
       console.error("必須項目が入力されていません");
       return;
     }
     const formData = new FormData();
     formData.append("image1", image1);
-    formData.append("image2", image2);
+    formData.append("screenshot", screenshot);
     formData.append("member", selectedMember);
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
@@ -84,12 +84,12 @@ function App() {
           />
         </div>
         <div className="flex flex-col justify-end gap-4">
-          {image2 && (
-            <img src={getImageUrl(image2)} alt="Image 2" className="w-72" />
+          {screenshot && (
+            <img src={getImageUrl(screenshot)} alt="Image 2" className="w-72" />
           )}
           <input
             type="file"
-            onChange={(e) => handleImageChange(e, setImage2)}
+            onChange={(e) => handleImageChange(e, setScreenshot)}
             className="p-1"
           />
         </div>

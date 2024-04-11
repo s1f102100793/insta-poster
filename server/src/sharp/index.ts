@@ -6,6 +6,21 @@ interface sharpMetadata {
 }
 
 export const sharpUtils = {
+  async removeFrame(image: File, outputPath: string) {
+    const imageBuffer = await image.arrayBuffer();
+    const sharpImage = sharp(imageBuffer);
+    const metadata = await sharpImage.metadata() as sharpMetadata;
+    const frameWidth = 140;
+    const newSideLength = metadata.width - frameWidth * 2;
+
+    const trimmedImage = sharpImage.extract({
+      left: frameWidth,
+      top: frameWidth,
+      width: newSideLength,
+      height: newSideLength
+    });
+    await trimmedImage.toFile(outputPath);     
+  },
   async mergeImages(image1: File, screenshot: File, outputPath: string) {
     const image1Buffer = await image1.arrayBuffer();
     const screenshotBuffer = await screenshot.arrayBuffer();
@@ -41,14 +56,10 @@ export const sharpUtils = {
     const resizedScreenshotBufferTop = Math.round((canvasSideLength - resizedScreenshotMetadata.height) / 2);
 
     const compositeImage = canvas.composite([
-      { input: resizedImage1Buffer, left: 0, top: resizedImage1BufferTop },
-      { input: resizedScreenshotBuffer, left: unifiedWidth, top: resizedScreenshotBufferTop }
+      { input: resizedImage1Buffer, left: unifiedWidth, top: resizedImage1BufferTop },
+      { input: resizedScreenshotBuffer, left: 0, top: resizedScreenshotBufferTop }
     ]);
 
-    try {
-      await compositeImage.toFile(outputPath);
-    } catch (error) {
-      console.error("Error saving image", error);
-    }
+    await compositeImage.toFile(outputPath);
   }
 };
