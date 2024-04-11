@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
 
 function App() {
@@ -8,6 +8,8 @@ function App() {
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedMember, setSelectedMember] = useState("てつや");
   const [title, setTitle] = useState("");
+  const [instagramPostText, setInstagramPostText] = useState("");
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const memberColors: Record<string, string> = {
     てつや: "bg-orange-200",
@@ -66,10 +68,18 @@ function App() {
     
     try {
       const response = await postsService.postSns(formData);
-      console.log(response);
+      const result = await response.text(); 
+      setInstagramPostText(result);
     } catch (error) {
       console.error("Error posting data", error);
     }
+  };
+
+  const copyToClipboard = () => {
+    const textArea = textAreaRef.current;
+    if (!textArea) return;
+    textArea.select();
+    document.execCommand('copy');
   };
 
   return (
@@ -165,6 +175,22 @@ function App() {
           作成する
         </button>
       </div>
+      {instagramPostText && (
+        <div className="flex flex-col w-72 gap-6">
+          <textarea
+            ref={textAreaRef}
+            value={instagramPostText}
+            readOnly
+            className="textarea"
+          />
+          <button
+          onClick={copyToClipboard}
+          className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
+          >
+            コピー
+          </button>
+        </div>
+      )}
     </div>
   );
 }

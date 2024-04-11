@@ -18,7 +18,6 @@ export const api = new Elysia({ prefix: "/api" })
       }
       
       const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
-      console.log(instagramPostText)
       
       const screenshotOutputPath = env.OUTPUT_PATH !== undefined
         ? `${env.OUTPUT_PATH}/${member}スクショ/${member}_${title}.png`
@@ -39,5 +38,7 @@ export const api = new Elysia({ prefix: "/api" })
         ? `${env.OUTPUT_PATH}/完成/${member}_${title}_2.png`
         : `../output/${member}_${title}_2.png`;
       await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
+
+      return instagramPostText
     }
   ));
