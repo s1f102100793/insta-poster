@@ -2,7 +2,8 @@ import { useState } from "react";
 import { postsService } from "./shared/posts.service";
 
 function App() {
-  const [image1, setImage1] = useState<File | null>(null);
+  const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
+  const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(null);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedMember, setSelectedMember] = useState("てつや");
@@ -48,12 +49,13 @@ function App() {
   };
 
   const postSns = async (): Promise<void> => {
-    if (!selectedMember || !youtubeUrl || !title || !image1 || !screenshot) {
+    if (!selectedMember || !youtubeUrl || !title || !firstPostImage || !secondCompositeImage || !screenshot) {
       console.error("必須項目が入力されていません");
       return;
     }
     const formData = new FormData();
-    formData.append("image1", image1);
+    formData.append("firstPostImage", firstPostImage);
+    formData.append("secondCompositeImage", secondCompositeImage);
     formData.append("screenshot", screenshot);
     formData.append("member", selectedMember);
     formData.append("youtubeUrl", youtubeUrl);
@@ -66,7 +68,6 @@ function App() {
       console.error("Error posting data", error);
     }
   };
-  
 
   return (
     <div
@@ -74,24 +75,37 @@ function App() {
     >
       <div className="flex flex-row gap-6">
         <div className="flex flex-col justify-end gap-4">
-          {image1 && (
-            <img src={getImageUrl(image1)} alt="Image 1" className="w-72" />
+          {firstPostImage && (
+            <img src={getImageUrl(firstPostImage)} alt="Image 1" className="w-72" />
           )}
           <input
             type="file"
-            onChange={(e) => handleImageChange(e, setImage1)}
+            onChange={(e) => handleImageChange(e, setFirstPostImage)}
             className="p-1"
           />
+          <label htmlFor="firstPostImage-input" className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300">投稿1枚目</label>
+        </div>
+        <div className="flex flex-col justify-end gap-4">
+          {secondCompositeImage && (
+            <img src={getImageUrl(secondCompositeImage)} alt="Image 2" className="w-72" />
+          )}
+          <input
+            type="file"
+            onChange={(e) => handleImageChange(e, setSecondCompositeImage)}
+            className="p-1"
+          />  
+          <label htmlFor="secondCompositeImage-input" className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300">投稿2枚目の合成用</label>
         </div>
         <div className="flex flex-col justify-end gap-4">
           {screenshot && (
-            <img src={getImageUrl(screenshot)} alt="Image 2" className="w-72" />
+            <img src={getImageUrl(screenshot)} alt="screenshot" className="w-72" />
           )}
           <input
             type="file"
             onChange={(e) => handleImageChange(e, setScreenshot)}
             className="p-1"
           />
+          <label htmlFor="screenshot-input" className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300">スクリーンショット</label>
         </div>
       </div>
       <div className="flex flex-col w-72 gap-6">
@@ -141,7 +155,7 @@ function App() {
           onClick={postSns}
           className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
         >
-          投稿する
+          作成する
         </button>
       </div>
     </div>
