@@ -47,6 +47,9 @@ function App() {
     }
     return url;
   };
+  const isShortsUrl = (url: string): boolean => {
+    return /youtube\.com\/shorts\/([^#&?]*).*/.test(url);
+  };  
 
   const postSns = async (): Promise<void> => {
     if (!selectedMember || !youtubeUrl || !title || !firstPostImage || !secondCompositeImage || !screenshot) {
@@ -117,13 +120,17 @@ function App() {
           className="p-1"
         />
         {youtubeUrl && (
-          <iframe
-            className="bg-white"
-            title="YouTube video player"
-            src={getEmbedUrl(youtubeUrl)}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
+          <>
+            {!isShortsUrl(youtubeUrl) && (
+              <iframe
+                className="bg-white"
+                title="YouTube video player"
+                src={getEmbedUrl(youtubeUrl)}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            )}
+          </>
         )}
       </div>
       <div className="flex flex-col w-72 gap-6">
