@@ -6,6 +6,10 @@ interface sharpMetadata {
 }
 
 export const sharpUtils = {
+  async saveImage(image: File, outputPath: string) {
+    const imageBuffer = await image.arrayBuffer();
+    await sharp(imageBuffer).toFile(outputPath);
+  },
   async removeFrame(image: File, outputPath: string) {
     const imageBuffer = await image.arrayBuffer();
     const sharpImage = sharp(imageBuffer);
