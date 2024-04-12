@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { instagramTemplate } from "./sns/instagram/template";
 import { sharpUtils } from "./sharp";
 import { env } from "./env";
+import { instagram } from "./sns/instagram";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
@@ -38,6 +39,9 @@ export const api = new Elysia({ prefix: "/api" })
         ? `${env.OUTPUT_PATH}/完成/${member}_${title}_2.png`
         : `../output/${member}_${title}_2.png`;
       await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
+
+      const contenaIds = await instagram.makeContenaAPI(firstPostImageOutputPath, mergeImagesOutputPath)
+      await instagram.makeGroupContenaAPI(contenaIds)
 
       return instagramPostText
     }

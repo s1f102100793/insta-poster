@@ -5,6 +5,8 @@ const EnvSchema = object({
   PUBLIC_DIR: string(),
   YOUTUBE_DATA_API_KEY: string(),
   OUTPUT_PATH: string().optional(),
+  INSTAGRAM_BUSINESS_ID: string(),
+  INSTAGRAM_ACCESS_TOKEN: string(),
 });
 
 export const env = EnvSchema.parse(process.env);
