@@ -3,6 +3,7 @@ import { instagramTemplate } from "./sns/instagram/template";
 import { sharpUtils } from "./sharp";
 import { env } from "./env";
 import { instagram } from "./sns/instagram";
+import { s3 } from "./s3";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
@@ -30,15 +31,20 @@ export const api = new Elysia({ prefix: "/api" })
         : `../output/${member}_${title}_画像.png`;
       await sharpUtils.removeFrame(secondCompositeImage, removeFrameImage1OutputPath)
 
+      const firstPostImageEndPath = `完成/${member}_${title}_1.png`
       const firstPostImageOutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/完成/${member}_${title}_1.png`
+        ? `${env.OUTPUT_PATH}/${firstPostImageEndPath}`
         : `../output/${member}_${title}_1.png`;
       await sharpUtils.saveImage(firstPostImage, firstPostImageOutputPath)
+      const firstPostImageBuffer = Buffer.from(await firstPostImage.arrayBuffer());
+      await s3.upload(firstPostImageEndPath, firstPostImageBuffer)
 
+      const mergeImagesEndPath = `完成/${member}_${title}_2.png`
       const mergeImagesOutputPath = env.OUTPUT_PATH !== undefined 
-        ? `${env.OUTPUT_PATH}/完成/${member}_${title}_2.png`
+        ? `${env.OUTPUT_PATH}/${mergeImagesEndPath}`
         : `../output/${member}_${title}_2.png`;
-      await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
+      const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
+      await s3.upload(mergeImagesEndPath, secondPostImageBuffer)
 
       const contenaIds = await instagram.makeContenaAPI(firstPostImageOutputPath, mergeImagesOutputPath)
       await instagram.makeGroupContenaAPI(contenaIds)
