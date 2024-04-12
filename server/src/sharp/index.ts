@@ -59,7 +59,10 @@ export const sharpUtils = {
       { input: resizedImage1Buffer, left: unifiedWidth, top: resizedImage1BufferTop },
       { input: resizedScreenshotBuffer, left: 0, top: resizedScreenshotBufferTop }
     ]);
+    const quality = 100;
+    await compositeImage.jpeg({ quality }).toFile(outputPath);
 
-    await compositeImage.toFile(outputPath);
+    const buffer = await compositeImage.toBuffer();
+    return buffer;
   }
 };
