@@ -46,7 +46,7 @@ export const api = new Elysia({ prefix: "/api" })
       const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
       await s3.upload(mergeImagesEndPath, secondPostImageBuffer)
 
-      const contenaIds = await instagram.makeContenaAPI(firstPostImageOutputPath, mergeImagesOutputPath)
+      const contenaIds = await instagram.makeContenaAPI(firstPostImageEndPath, mergeImagesEndPath)
       await instagram.makeGroupContenaAPI(contenaIds)
 
       return instagramPostText

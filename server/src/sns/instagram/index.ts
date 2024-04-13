@@ -9,11 +9,11 @@ export const instagram = {
 
     const mediaUrls = [
       {
-        media_url: firstPostImageOutputPath,
+        media_url: `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${firstPostImageOutputPath}`,
         type: 'IMAGE'
       },
       {
-        media_url: secondPostImageOutputPath,
+        media_url: `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${secondPostImageOutputPath}`,
         type: 'IMAGE'    
       }
     ];
