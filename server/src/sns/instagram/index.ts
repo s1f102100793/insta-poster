@@ -1,3 +1,4 @@
+import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
 
@@ -62,27 +63,33 @@ export const instagram = {
     return contenaIds;
   },
   async makeGroupContenaAPI(contenaIds: string[]) {
-    Utilities.sleep(20000); 
+    // DB登録を待つため20秒待つ
+    await sleep(20000);
     const postData = {
       media_type: 'CAROUSEL',
       caption: '#BronzFonz',
       children: contenaIds
     }
     const url = `https://graph.facebook.com/v17.0/${instaBusinessId}/media?`;
-  const response = instagram.api(url, 'POST', postData);
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${instaAccessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(postData)
+    });
 
-  try {
-    if (response) {
-      const data = JSON.parse(response.getContentText());
-      return data.id;
-    } else {
-      console.error('Instagram APIのリクエストでエラーが発生しました。');
+    console.log('response:', response);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
       return null;
     }
-  } catch (error) {
-    console.error('Instagram APIのレスポンスの解析中にエラーが発生しました:', error);
-    return null;
-  }
+
+    const data = await response.json();
+    return data;
   },
   async api(url:string, method:string, postData:object) {
     try {

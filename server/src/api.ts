@@ -58,6 +58,8 @@ export const api = new Elysia({ prefix: "/api" })
         s3Endpoint = await ngrokUtils.start()
       }
       const contenaIds = await instagram.makeContenaAPI(s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
+      if(contenaIds === null) return
+      await instagram.makeGroupContenaAPI(contenaIds)
 
       return instagramPostText
     }
