@@ -10,30 +10,16 @@ export const instagram = {
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const secondPostImageMediaUrl = await s3.generatePresignedUrl(secondPostImageOutputPath);
-    console.log("firstPostImageMediaUrl", firstPostImageMediaUrl);
-    console.log("secondPostImageMediaUrl", secondPostImageMediaUrl);
-
-    console.log("----------------------------------------")
 
     const mediaUrls = [
-      {
-        id: 1,
-        media_url: 'https://picsum.photos/200/300.jpg',
-        type: 'IMAGE'
-      },
       {
         media_url: firstPostImageMediaUrl,
         type: 'IMAGE'
       },
       {
-        id: 3,
-        media_url: `${s3Endpoint}/${env.S3_BUCKET}/${firstPostImageOutputPath}`,
-        type: 'IMAGE'
-      },
-      // {
-      //   media_url: secondPostImageMediaUrl,
-      //   type: 'IMAGE'    
-      // }
+        media_url: secondPostImageMediaUrl,
+        type: 'IMAGE'    
+      }
     ];
 
     const headers = {
@@ -45,7 +31,8 @@ export const instagram = {
       const postData = {
         image_url: media.media_url,
         media_type: media.type,
-        is_carousel_item: true
+        is_carousel_item: true,
+        caption: '#BronzFonz'
       };
 
       const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
@@ -73,6 +60,7 @@ export const instagram = {
       }
     }
 
+    console.log('contenaIds:', contenaIds);
     return contenaIds;
   },
   async makeGroupContenaAPI(contenaIds: string[]) {

@@ -9,6 +9,7 @@ import { ngrokUtils } from "./ngrok";
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
     router.post("/", async ({ request }) => {
+      console.log("request")
       const formData = await request.formData();
       const member = formData.get("member") as string
       const youtubeUrl = formData.get("youtubeUrl") as string
@@ -23,27 +24,27 @@ export const api = new Elysia({ prefix: "/api" })
       const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
       
       const screenshotOutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/${member}スクショ/${member}_${title}.jpg`
-        : `../output/${member}_${title}_スクショ.jpg`;
+        ? `${env.OUTPUT_PATH}/${member}スクショ/${member}_${title}.jpeg`
+        : `../output/${member}_${title}_スクショ.jpeg`;
       await sharpUtils.saveImage(screenshot, screenshotOutputPath)
 
       const removeFrameImage1OutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/${member}画像/${member}_${title}.jpg`
-        : `../output/${member}_${title}_画像.jpg`;
+        ? `${env.OUTPUT_PATH}/${member}画像/${member}_${title}.jpeg`
+        : `../output/${member}_${title}_画像.jpeg`;
       await sharpUtils.removeFrame(secondCompositeImage, removeFrameImage1OutputPath)
 
-      const firstPostImageEndPath = `完成/${member}_${title}_1.jpg`
+      const firstPostImageEndPath = `complete/${encodeURIComponent(member)}_${encodeURIComponent(title)}_1.jpeg`
       const firstPostImageOutputPath = env.OUTPUT_PATH !== undefined
         ? `${env.OUTPUT_PATH}/${firstPostImageEndPath}`
-        : `../output/${member}_${title}_1.jpg`;
+        : `../output/${member}_${title}_1.jpeg`;
       await sharpUtils.saveImage(firstPostImage, firstPostImageOutputPath)
       const firstPostImageBuffer = Buffer.from(await firstPostImage.arrayBuffer());
       await s3.upload(firstPostImageEndPath, firstPostImageBuffer)
 
-      const mergeImagesEndPath = `完成/${member}_${title}_2.jpg`
+      const mergeImagesEndPath = `complete/${encodeURIComponent(member)}_${encodeURIComponent(title)}_2.jpeg`
       const mergeImagesOutputPath = env.OUTPUT_PATH !== undefined 
         ? `${env.OUTPUT_PATH}/${mergeImagesEndPath}`
-        : `../output/${member}_${title}_2.jpg`;
+        : `../output/${member}_${title}_2.jpeg`;
       const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
       await s3.upload(mergeImagesEndPath, secondPostImageBuffer)
 
@@ -53,7 +54,7 @@ export const api = new Elysia({ prefix: "/api" })
       if (isLocalhost) {
         s3Endpoint = await ngrokUtils.start()
       }
-      console.log('s3Endpoint:', s3Endpoint)
+      console.log("s3Endpoint", s3Endpoint)
       const contenaIds = await instagram.makeContenaAPI(s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
       // await instagram.makeGroupContenaAPI(contenaIds)
 
