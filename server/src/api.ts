@@ -5,6 +5,7 @@ import { env } from "./env";
 import { instagram } from "./sns/instagram";
 import { s3 } from "./s3";
 import { ngrokUtils } from "./ngrok";
+import { convertToRomaji } from "./service/convertToRomaji";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
@@ -33,17 +34,19 @@ export const api = new Elysia({ prefix: "/api" })
         : `../output/${member}_${title}_画像.jpeg`;
       await sharpUtils.removeFrame(secondCompositeImage, removeFrameImage1OutputPath)
 
-      const firstPostImageEndPath = `complete/${encodeURIComponent(member)}_${encodeURIComponent(title)}_1.jpeg`
+      const firstPostImageEndPath = `complete/${convertToRomaji(member)}_${encodeURIComponent(title)}_1.jpeg`
+      const firstPostImageLocalEndPath = `完成/${member}_${title}_1.jpeg`;
       const firstPostImageOutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/${firstPostImageEndPath}`
+        ? `${env.OUTPUT_PATH}/${firstPostImageLocalEndPath}`
         : `../output/${member}_${title}_1.jpeg`;
       await sharpUtils.saveImage(firstPostImage, firstPostImageOutputPath)
       const firstPostImageBuffer = Buffer.from(await firstPostImage.arrayBuffer());
       await s3.upload(firstPostImageEndPath, firstPostImageBuffer)
 
-      const mergeImagesEndPath = `complete/${encodeURIComponent(member)}_${encodeURIComponent(title)}_2.jpeg`
+      const mergeImagesEndPath = `complete/${convertToRomaji(member)}_${encodeURIComponent(title)}_2.jpeg`
+      const mergeImagesLocalEndPath = `完成/${member}_${title}_2.jpeg`;
       const mergeImagesOutputPath = env.OUTPUT_PATH !== undefined 
-        ? `${env.OUTPUT_PATH}/${mergeImagesEndPath}`
+        ? `${env.OUTPUT_PATH}/${mergeImagesLocalEndPath}`
         : `../output/${member}_${title}_2.jpeg`;
       const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
       await s3.upload(mergeImagesEndPath, secondPostImageBuffer)
