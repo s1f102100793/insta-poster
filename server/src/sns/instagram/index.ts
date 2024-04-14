@@ -1,4 +1,5 @@
 import { env } from "../../env";
+import { s3 } from "../../s3";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
@@ -6,7 +7,13 @@ const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
 export const instagram = {
   async makeContenaAPI(s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
-    console.log('firstPostImageOutputPath:', firstPostImageOutputPath);
+
+    const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
+    const secondPostImageMediaUrl = await s3.generatePresignedUrl(secondPostImageOutputPath);
+    console.log("firstPostImageMediaUrl", firstPostImageMediaUrl);
+    console.log("secondPostImageMediaUrl", secondPostImageMediaUrl);
+
+    console.log("----------------------------------------")
 
     const mediaUrls = [
       {
@@ -15,37 +22,33 @@ export const instagram = {
         type: 'IMAGE'
       },
       {
-        id: 2,
-        media_url: 'https://picsum.photos/200/300.jpg',
-        type: 'IMAGE'    
+        media_url: firstPostImageMediaUrl,
+        type: 'IMAGE'
       },
       {
         id: 3,
         media_url: `${s3Endpoint}/${env.S3_BUCKET}/${firstPostImageOutputPath}`,
         type: 'IMAGE'
       },
-      {
-        id: 4,
-        media_url: `${s3Endpoint}/${env.S3_BUCKET}/${secondPostImageOutputPath}`,
-        type: 'IMAGE'    
-      }
+      // {
+      //   media_url: secondPostImageMediaUrl,
+      //   type: 'IMAGE'    
+      // }
     ];
 
     const headers = {
       'Authorization': `Bearer ${instaAccessToken}`,
-      'Content-Type': 'application/json',
-      'ngrok-skip-browser-warning': 'skip' 
+      'Content-Type': 'application/json', 
     };
 
     for (const media of mediaUrls) {
       const postData = {
         image_url: media.media_url,
-        media_type: '',
+        media_type: media.type,
         is_carousel_item: true
       };
-      console.log('postData:', postData);
 
-      const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media`;
+      const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
 
       try {
         const response = await fetch(url, {
@@ -53,18 +56,20 @@ export const instagram = {
           headers: headers,
           body: JSON.stringify(postData)
         });
+        console.log('Instagram APIのレスポンス:', response);
 
         if (!response.ok) {
           const errorData = await response.json(); 
           console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
+          return null;
         }
 
-        // const data = await response.json();
-        // console.log('Instagram APIのレスポンス:', data);
-        // contenaIds.push(data.id);
+        const data = await response.json() as { id: string };
+        console.log('Instagram APIのレスポンス:', data);
+        contenaIds.push(data.id);
       } catch (error) {
-        // console.error('Instagram APIのレスポンスの解析中にエラーが発生しました:', error);
-        throw error;
+        console.error('Instagram APIのリクエスト中にエラーが発生しました:', error);
+        return null;
       }
     }
 
