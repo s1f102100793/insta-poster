@@ -6,7 +6,7 @@ const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
 
 export const instagram = {
-  async makeContenaAPI(s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
+  async makeContena(s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
@@ -59,10 +59,9 @@ export const instagram = {
       }
     }
 
-    console.log('contenaIds:', contenaIds);
     return contenaIds;
   },
-  async makeGroupContenaAPI(contenaIds: string[]) {
+  async makeGroupContena(contenaIds: string[]) {
     // DB登録を待つため20秒待つ
     await sleep(20000);
     const postData = {
@@ -80,8 +79,6 @@ export const instagram = {
       body: JSON.stringify(postData)
     });
 
-    console.log('response:', response);
-
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
@@ -90,29 +87,6 @@ export const instagram = {
 
     const data = await response.json();
     return data;
-  },
-  async api(url:string, method:string, postData:object) {
-    try {
-      const data = postData
-      const headers = {
-        'Authorization': 'Bearer ' + instaAccessToken,
-        'Content-Type': 'application/json',
-      };
-      const options = {
-        'method': method,
-        'headers': headers,
-        'payload': JSON.stringify(data),
-        'muteHttpExceptions' : true,
-        'validateHttpsCertificates' : false,
-        'followRedirects' : false
-      };
-  
-      const response = UrlFetchApp.fetch(url, options);
-      return response;
-    } catch (error) {
-      console.error('Instagram APIのリクエスト中にエラーが発生しました:', error);
-      return null;
-    }
   },
   async makePost(member:string, title:string, youtubeUrl:string) {
     
