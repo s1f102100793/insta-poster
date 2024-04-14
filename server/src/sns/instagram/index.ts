@@ -43,7 +43,6 @@ export const instagram = {
           headers: headers,
           body: JSON.stringify(postData)
         });
-        console.log('Instagram APIのレスポンス:', response);
 
         if (!response.ok) {
           const errorData = await response.json(); 
@@ -52,7 +51,6 @@ export const instagram = {
         }
 
         const data = await response.json() as { id: string };
-        console.log('Instagram APIのレスポンス:', data);
         contenaIds.push(data.id);
       } catch (error) {
         console.error('Instagram APIのリクエスト中にエラーが発生しました:', error);

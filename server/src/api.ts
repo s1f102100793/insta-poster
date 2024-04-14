@@ -57,9 +57,7 @@ export const api = new Elysia({ prefix: "/api" })
       if (isLocalhost) {
         s3Endpoint = await ngrokUtils.start()
       }
-      console.log("s3Endpoint", s3Endpoint)
       const contenaIds = await instagram.makeContenaAPI(s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
-      // await instagram.makeGroupContenaAPI(contenaIds)
 
       return instagramPostText
     }
