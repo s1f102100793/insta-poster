@@ -59,7 +59,11 @@ export const api = new Elysia({ prefix: "/api" })
       }
       const contenaIds = await instagram.makeContena(s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
       if(contenaIds === null) return
-      await instagram.makeGroupContena(contenaIds)
+      const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)
+      if(groupContenaId === null) return
+      const data = await instagram.contentPublishAPI(groupContenaId)
+      if(data === null) return
+      console.log("自動投稿に成功しました！")
 
       return instagramPostText
     }
