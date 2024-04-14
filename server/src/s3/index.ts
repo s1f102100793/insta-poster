@@ -9,6 +9,7 @@ export const s3 = {
         Bucket: env.S3_BUCKET,
         Key: directoryName,
         Body: imageBuffer,
+        ContentType: 'image/jpeg'
       })
     );
     const url = `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${directoryName}`;

@@ -4,48 +4,66 @@ const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
 
 export const instagram = {
-  async makeContenaAPI(firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
+  async makeContenaAPI(s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
+    console.log('firstPostImageOutputPath:', firstPostImageOutputPath);
 
     const mediaUrls = [
       {
-        media_url: `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${firstPostImageOutputPath}`,
+        id: 1,
+        media_url: 'https://picsum.photos/200/300.jpg',
         type: 'IMAGE'
       },
       {
-        media_url: `${env.S3_ENDPOINT}/${env.S3_BUCKET}/${secondPostImageOutputPath}`,
+        id: 2,
+        media_url: 'https://picsum.photos/200/300.jpg',
+        type: 'IMAGE'    
+      },
+      {
+        id: 3,
+        media_url: `${s3Endpoint}/${env.S3_BUCKET}/${firstPostImageOutputPath}`,
+        type: 'IMAGE'
+      },
+      {
+        id: 4,
+        media_url: `${s3Endpoint}/${env.S3_BUCKET}/${secondPostImageOutputPath}`,
         type: 'IMAGE'    
       }
     ];
 
+    const headers = {
+      'Authorization': `Bearer ${instaAccessToken}`,
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'skip' 
+    };
+
     for (const media of mediaUrls) {
       const postData = {
         image_url: media.media_url,
-        media_type: media.type,
+        media_type: '',
         is_carousel_item: true
       };
       console.log('postData:', postData);
 
-      const url = `https://graph.facebook.com/v17.0/${instaBusinessId}/media?`;
+      const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media`;
 
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify(postData)
         });
 
         if (!response.ok) {
           const errorData = await response.json(); 
           console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
-          throw new Error(`Instagram APIのリクエストでエラーが発生しました。 ステータスコード: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('Instagram APIのレスポンス:', data);
-        contenaIds.push(data.id);
+        // const data = await response.json();
+        // console.log('Instagram APIのレスポンス:', data);
+        // contenaIds.push(data.id);
       } catch (error) {
-        console.error('Instagram APIのレスポンスの解析中にエラーが発生しました:', error);
+        // console.error('Instagram APIのレスポンスの解析中にエラーが発生しました:', error);
         throw error;
       }
     }
