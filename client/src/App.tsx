@@ -4,6 +4,7 @@ import { GenericSelect } from "./components/GenericSelect";
 import { MemberName, memberNames } from "./types/memberNames";
 import { TagPosition, tagPositions } from "./types/tagPositions";
 import { ImageUpload } from "./components/ImageUpload";
+import { TextInput } from "./components/TextInput";
 
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
@@ -27,12 +28,6 @@ function App() {
     虫眼鏡: "bg-yellow-900",
   };
 
-  const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setYoutubeUrl(event.target.value);
-  };
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
-  };
   const getEmbedUrl = (url: string): string => {
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -110,12 +105,10 @@ function App() {
         />
       </div>
       <div className="flex flex-col w-72 gap-6">
-        <input
-          type="text"
+        <TextInput
           value={youtubeUrl}
-          onChange={handleUrlChange}
-          placeholder="YouTube URLを入力"
-          className="p-1"
+          setValue={setYoutubeUrl}
+          placeholder="YouTubeのURLを入力"
         />
         {youtubeUrl && (
           <>
@@ -146,12 +139,10 @@ function App() {
         />
       </div>
       <div className="flex flex-col w-72 gap-6">
-        <input
-          type="text"
+        <TextInput
           value={title}
-          onChange={handleTitleChange}
+          setValue={setTitle}
           placeholder="タイトルを入力"
-          className="p-1"
         />
       </div>
       <div className="flex flex-col w-72 gap-6">
