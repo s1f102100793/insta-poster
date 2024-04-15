@@ -131,18 +131,20 @@ function App() {
           </>
         )}
       </div>
-      <GenericSelect<MemberName>
-        value={selectedMember}
-        options={memberNames}
-        onChange={setSelectedMember}
-        placeholder="メンバーを選択"
-      />
-      <GenericSelect<TagPosition>
-        value={tagPosition}
-        options={tagPositions.map((tag) => tag.label)}
-        onChange={setTagPosition}
-        placeholder="タグの位置を選択"
-      />
+      <div className="flex flex-col w-72 gap-6">
+        <GenericSelect<MemberName>
+          value={selectedMember}
+          options={memberNames}
+          onChange={setSelectedMember}
+          placeholder="メンバーを選択"
+        />
+        <GenericSelect<TagPosition>
+          value={tagPosition}
+          options={tagPositions.map((tag) => tag.label)}
+          onChange={setTagPosition}
+          placeholder="タグの位置を選択"
+        />
+      </div>
       <div className="flex flex-col w-72 gap-6">
         <input
           type="text"
