@@ -3,6 +3,7 @@ import { postsService } from "./shared/posts.service";
 import { GenericSelect } from "./components/GenericSelect";
 import { MemberName, memberNames } from "./types/memberNames";
 import { TagPosition, tagPositions } from "./types/tagPositions";
+import { ImageUpload } from "./components/ImageUpload";
 
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
@@ -26,22 +27,12 @@ function App() {
     虫眼鏡: "bg-yellow-900",
   };
 
-  const handleImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    setImage: React.Dispatch<React.SetStateAction<File | null>>,
-  ) => {
-    if (event.target.files && event.target.files[0]) {
-      setImage(event.target.files[0]);
-    }
-  };
   const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setYoutubeUrl(event.target.value);
   };
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
-  const getImageUrl = (image: File | null) =>
-    image ? URL.createObjectURL(image) : "";
   const getEmbedUrl = (url: string): string => {
     const regExp =
       /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -99,66 +90,24 @@ function App() {
       className={`flex flex-col items-center justify-center min-h-screen gap-6 ${memberColors[selectedMember]}`}
     >
       <div className="flex flex-row gap-6">
-        <div className="flex flex-col justify-end gap-4">
-          {firstPostImage && (
-            <img
-              src={getImageUrl(firstPostImage)}
-              alt="Image 1"
-              className="w-72"
-            />
-          )}
-          <input
-            type="file"
-            onChange={(e) => handleImageChange(e, setFirstPostImage)}
-            className="p-1"
-          />
-          <label
-            htmlFor="firstPostImage-input"
-            className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
-          >
-            投稿1枚目
-          </label>
-        </div>
-        <div className="flex flex-col justify-end gap-4">
-          {secondCompositeImage && (
-            <img
-              src={getImageUrl(secondCompositeImage)}
-              alt="Image 2"
-              className="w-72"
-            />
-          )}
-          <input
-            type="file"
-            onChange={(e) => handleImageChange(e, setSecondCompositeImage)}
-            className="p-1"
-          />
-          <label
-            htmlFor="secondCompositeImage-input"
-            className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
-          >
-            投稿2枚目の合成用
-          </label>
-        </div>
-        <div className="flex flex-col justify-end gap-4">
-          {screenshot && (
-            <img
-              src={getImageUrl(screenshot)}
-              alt="screenshot"
-              className="w-72"
-            />
-          )}
-          <input
-            type="file"
-            onChange={(e) => handleImageChange(e, setScreenshot)}
-            className="p-1"
-          />
-          <label
-            htmlFor="screenshot-input"
-            className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
-          >
-            スクリーンショット
-          </label>
-        </div>
+        <ImageUpload
+          image={firstPostImage}
+          setImage={setFirstPostImage}
+          label="投稿1枚目"
+          id="firstPostImage"
+        />
+        <ImageUpload
+          image={secondCompositeImage}
+          setImage={setSecondCompositeImage}
+          label="投稿2枚目の合成用"
+          id="secondCompositeImage"
+        />
+        <ImageUpload
+          image={screenshot}
+          setImage={setScreenshot}
+          label="スクリーンショット"
+          id="screenshot"
+        />
       </div>
       <div className="flex flex-col w-72 gap-6">
         <input
