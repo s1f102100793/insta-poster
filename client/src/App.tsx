@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
-
-type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
-const memberNames: MemberName[] = ['てつや', 'しばゆー', 'りょう', 'としみつ', 'ゆめまる', '虫眼鏡'];
-type TagPosition = 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
-const tagPositions: TagPosition[] = ['bottom-left', 'bottom-right', 'top-right', 'top-left'];
+import { GenericSelect } from "./components/GenericSelect";
+import { MemberName, memberNames } from "./types/memberNames";
+import { TagPosition, tagPositions } from "./types/tagPositions";
 
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
-  const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(null);
+  const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(
+    null,
+  );
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedMember, setSelectedMember] = useState<MemberName>("てつや");
@@ -37,23 +37,6 @@ function App() {
   const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setYoutubeUrl(event.target.value);
   };
-  const handleMemberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value as MemberName;
-    if (memberNames.includes(value)) {
-      setSelectedMember(value);
-    } else {
-      alert("Invalid member name");
-    }
-  };
-  
-  const handleTagPositionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value as TagPosition;
-    if (tagPositions.includes(value)) {
-      setTagPosition(value);
-    } else {
-      alert("Invalid tag position");
-    }
-  };
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
   };
@@ -71,10 +54,18 @@ function App() {
   };
   const isShortsUrl = (url: string): boolean => {
     return /youtube\.com\/shorts\/([^#&?]*).*/.test(url);
-  };  
+  };
 
   const postSns = async (): Promise<void> => {
-    if (!selectedMember || !youtubeUrl || !title || !tagPosition || !firstPostImage || !secondCompositeImage || !screenshot) {
+    if (
+      !selectedMember ||
+      !youtubeUrl ||
+      !title ||
+      !tagPosition ||
+      !firstPostImage ||
+      !secondCompositeImage ||
+      !screenshot
+    ) {
       console.error("必須項目が入力されていません");
       return;
     }
@@ -86,10 +77,10 @@ function App() {
     formData.append("tagPosition", tagPosition);
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
-    
+
     try {
       const response = await postsService.postSns(formData);
-      const result = await response.text(); 
+      const result = await response.text();
       setInstagramPostText(result);
     } catch (error) {
       console.error("Error posting data", error);
@@ -100,7 +91,7 @@ function App() {
     const textArea = textAreaRef.current;
     if (!textArea) return;
     textArea.select();
-    document.execCommand('copy');
+    document.execCommand("copy");
   };
 
   return (
@@ -110,36 +101,63 @@ function App() {
       <div className="flex flex-row gap-6">
         <div className="flex flex-col justify-end gap-4">
           {firstPostImage && (
-            <img src={getImageUrl(firstPostImage)} alt="Image 1" className="w-72" />
+            <img
+              src={getImageUrl(firstPostImage)}
+              alt="Image 1"
+              className="w-72"
+            />
           )}
           <input
             type="file"
             onChange={(e) => handleImageChange(e, setFirstPostImage)}
             className="p-1"
           />
-          <label htmlFor="firstPostImage-input" className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300">投稿1枚目</label>
+          <label
+            htmlFor="firstPostImage-input"
+            className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
+          >
+            投稿1枚目
+          </label>
         </div>
         <div className="flex flex-col justify-end gap-4">
           {secondCompositeImage && (
-            <img src={getImageUrl(secondCompositeImage)} alt="Image 2" className="w-72" />
+            <img
+              src={getImageUrl(secondCompositeImage)}
+              alt="Image 2"
+              className="w-72"
+            />
           )}
           <input
             type="file"
             onChange={(e) => handleImageChange(e, setSecondCompositeImage)}
             className="p-1"
-          />  
-          <label htmlFor="secondCompositeImage-input" className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300">投稿2枚目の合成用</label>
+          />
+          <label
+            htmlFor="secondCompositeImage-input"
+            className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
+          >
+            投稿2枚目の合成用
+          </label>
         </div>
         <div className="flex flex-col justify-end gap-4">
           {screenshot && (
-            <img src={getImageUrl(screenshot)} alt="screenshot" className="w-72" />
+            <img
+              src={getImageUrl(screenshot)}
+              alt="screenshot"
+              className="w-72"
+            />
           )}
           <input
             type="file"
             onChange={(e) => handleImageChange(e, setScreenshot)}
             className="p-1"
           />
-          <label htmlFor="screenshot-input" className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300">スクリーンショット</label>
+          <label
+            htmlFor="screenshot-input"
+            className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
+          >
+            スクリーンショット
+          </label>
         </div>
       </div>
       <div className="flex flex-col w-72 gap-6">
@@ -164,35 +182,18 @@ function App() {
           </>
         )}
       </div>
-      <div className="flex flex-col w-72 gap-6">
-        <select
-          value={selectedMember}
-          onChange={handleMemberChange}
-          className="p-1"
-        >
-          <option value="">メンバーを選択</option>
-          <option value="てつや">てつや</option>
-          <option value="しばゆー">しばゆー</option>
-          <option value="りょう">りょう</option>
-          <option value="としみつ">としみつ</option>
-          <option value="ゆめまる">ゆめまる</option>
-          <option value="虫眼鏡">虫眼鏡</option>
-        </select>
-      </div>
-      <div className="flex flex-col w-72 gap-6">
-        <select
-          id="tag-position-select"
-          value={tagPosition}
-          onChange={handleTagPositionChange}
-          className="p-1"
-        >
-          <option value="">タグの位置を選択</option>
-          <option value="bottom-left">左下</option>
-          <option value="bottom-right">右下</option>
-          <option value="top-right">右上</option>
-          <option value="top-left">左上</option>
-        </select>
-      </div>
+      <GenericSelect<MemberName>
+        value={selectedMember}
+        options={memberNames}
+        onChange={setSelectedMember}
+        placeholder="メンバーを選択"
+      />
+      <GenericSelect<TagPosition>
+        value={tagPosition}
+        options={tagPositions.map((tag) => tag.label)}
+        onChange={setTagPosition}
+        placeholder="タグの位置を選択"
+      />
       <div className="flex flex-col w-72 gap-6">
         <input
           type="text"
@@ -219,8 +220,8 @@ function App() {
             className="textarea"
           />
           <button
-          onClick={copyToClipboard}
-          className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
+            onClick={copyToClipboard}
+            className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
           >
             コピー
           </button>
