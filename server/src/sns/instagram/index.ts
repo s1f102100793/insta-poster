@@ -1,8 +1,8 @@
 import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
-import { convertToInstagramId } from "../../service/memberNameConverters";
-import { getPositionCoordinates } from "./getPositionCoordinates";
+import { MemberName, convertToInstagramId } from "../../service/memberNameConverters";
+import { TagPosition, getPositionCoordinates } from "./getPositionCoordinates";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
@@ -13,7 +13,7 @@ const headers = {
 };
 
 export const instagram = {
-  async makeContena(member: string, tagPosition: string, s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
+  async makeContena(member: MemberName, tagPosition: TagPosition, s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);

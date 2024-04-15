@@ -1,18 +1,21 @@
 import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
 
+type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
+type TagPosition = 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
+
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
   const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(null);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [selectedMember, setSelectedMember] = useState("てつや");
-  const [tagPosition, setTagPosition] = useState("bottom-left");
+  const [selectedMember, setSelectedMember] = useState<MemberName>("てつや");
+  const [tagPosition, setTagPosition] = useState<TagPosition>("bottom-left");
   const [title, setTitle] = useState("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-  const memberColors: Record<string, string> = {
+  const memberColors: Record<MemberName, string> = {
     てつや: "bg-orange-200",
     しばゆー: "bg-yellow-200",
     りょう: "bg-blue-200",
@@ -33,10 +36,21 @@ function App() {
     setYoutubeUrl(event.target.value);
   };
   const handleMemberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedMember(event.target.value);
+    const value = event.target.value as MemberName;
+    if (Object.values(memberColors).includes(value)) {
+      setSelectedMember(value);
+    } else {
+      alert("Invalid member name");
+    }
   };
+  
   const handleTagPositionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setTagPosition(event.target.value);
+    const value = event.target.value as TagPosition;
+    if (Object.values(tagPosition).includes(value)) {
+      setTagPosition(value);
+    } else {
+      alert("Invalid tag position");
+    }
   };
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -58,7 +72,7 @@ function App() {
   };  
 
   const postSns = async (): Promise<void> => {
-    if (!selectedMember || !youtubeUrl || !title || !firstPostImage || !secondCompositeImage || !screenshot) {
+    if (!selectedMember || !youtubeUrl || !title || !tagPosition || !firstPostImage || !secondCompositeImage || !screenshot) {
       console.error("必須項目が入力されていません");
       return;
     }

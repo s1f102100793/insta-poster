@@ -1,7 +1,8 @@
+import { MemberName } from "../../service/memberNameConverters";
 import { youtube } from "../youtube";
 
 export const instagramTemplate = {
-  async post(member:string, title:string, youtubeUrl:string) {
+  async post(member:MemberName, title:string, youtubeUrl:string) {
     const videoId = youtube.getVideoId(youtubeUrl) as string
     const youtubeTitle = await youtube.getVideoTitle(videoId)
 

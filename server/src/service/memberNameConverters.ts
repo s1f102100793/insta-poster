@@ -1,4 +1,6 @@
-const memberNameToRomaji: Record<string, string> = {
+ export type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
+
+const memberNameToRomaji: Record<MemberName, string> = {
   てつや: "Tetsuya",
   しばゆー: "Shibayu",
   りょう: "Ryo",
@@ -7,11 +9,11 @@ const memberNameToRomaji: Record<string, string> = {
   虫眼鏡: "Mushimegane"
 };
 
-export const convertToRomaji = (memberName: string): string => {
+export const convertToRomaji = (memberName: MemberName): string => {
   return memberNameToRomaji[memberName] || "Unknown";
 };
 
-const memberNameToInstagramId: Record<string, string> = {
+const memberNameToInstagramId: Record<MemberName, string> = {
   てつや: "to_tetsuya",
   しばゆー: "to___shibayu",
   りょう: "to_ryoo",
@@ -20,6 +22,6 @@ const memberNameToInstagramId: Record<string, string> = {
   虫眼鏡: "to_mushimegane"
 };
 
-export const convertToInstagramId = (memberName: string): string | undefined=> {
+export const convertToInstagramId = (memberName: MemberName): string | undefined=> {
   return memberNameToInstagramId[memberName] || undefined;
 };
