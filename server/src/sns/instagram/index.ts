@@ -1,6 +1,8 @@
 import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
+import { convertToInstagramId } from "../../service/memberNameConverters";
+import { getPositionCoordinates } from "./getPositionCoordinates";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
@@ -11,16 +13,18 @@ const headers = {
 };
 
 export const instagram = {
-  async makeContena(s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
+  async makeContena(member: string, tagPosition: string, s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const secondPostImageMediaUrl = await s3.generatePresignedUrl(secondPostImageOutputPath);
 
+    const position = getPositionCoordinates(tagPosition);
     const mediaUrls = [
       {
         media_url: firstPostImageMediaUrl,
-        type: 'IMAGE'
+        type: 'IMAGE',
+        user_tags: [{ username: `${convertToInstagramId(member)}`, ...position }]
       },
       {
         media_url: secondPostImageMediaUrl,
@@ -33,7 +37,7 @@ export const instagram = {
         image_url: media.media_url,
         media_type: media.type,
         is_carousel_item: true,
-        caption: '#BronzFonz'
+        user_tags: JSON.stringify(media.user_tags)
       };
 
       const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
@@ -41,7 +45,7 @@ export const instagram = {
       try {
         const response = await fetch(url, {
           method: 'POST',
-          headers: headers,
+          headers,
           body: JSON.stringify(postData)
         });
 
@@ -73,7 +77,7 @@ export const instagram = {
     const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
     const response = await fetch(url, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify(postData)
     });
 
@@ -97,7 +101,7 @@ export const instagram = {
     const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media_publish?`;
     const response = await fetch(url, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify(postData)
     });
 

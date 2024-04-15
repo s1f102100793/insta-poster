@@ -5,16 +5,16 @@ import { env } from "./env";
 import { instagram } from "./sns/instagram";
 import { s3 } from "./s3";
 import { ngrokUtils } from "./ngrok";
-import { convertToRomaji } from "./service/convertToRomaji";
+import { convertToRomaji } from "./service/memberNameConverters";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
     router.post("/", async ({ request }) => {
-      console.log("request")
       const formData = await request.formData();
       const member = formData.get("member") as string
       const youtubeUrl = formData.get("youtubeUrl") as string
       const title = formData.get("title") as string
+      const tagPosition = formData.get("tagPosition") as string
       const firstPostImage = formData.get("firstPostImage") as File | null
       const secondCompositeImage = formData.get("secondCompositeImage") as File | null
       const screenshot = formData.get("screenshot") as File | null
@@ -57,11 +57,11 @@ export const api = new Elysia({ prefix: "/api" })
       if (isLocalhost) {
         s3Endpoint = await ngrokUtils.start()
       }
-      const contenaIds = await instagram.makeContena(s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
+      const contenaIds = await instagram.makeContena(member, tagPosition, s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
       if(contenaIds === null) return
       const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)
       if(groupContenaId === null) return
-      const data = await instagram.contentPublishAPI(groupContenaId)
+      const data = await instagram.contentPublish(groupContenaId)
       if(data === null) return
       console.log("自動投稿に成功しました！")
 

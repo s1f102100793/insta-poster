@@ -7,6 +7,7 @@ function App() {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedMember, setSelectedMember] = useState("てつや");
+  const [tagPosition, setTagPosition] = useState("bottom-left");
   const [title, setTitle] = useState("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -33,6 +34,9 @@ function App() {
   };
   const handleMemberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedMember(event.target.value);
+  };
+  const handleTagPositionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setTagPosition(event.target.value);
   };
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -63,6 +67,7 @@ function App() {
     formData.append("secondCompositeImage", secondCompositeImage);
     formData.append("screenshot", screenshot);
     formData.append("member", selectedMember);
+    formData.append("tagPosition", tagPosition);
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
     
@@ -156,6 +161,20 @@ function App() {
           <option value="としみつ">としみつ</option>
           <option value="ゆめまる">ゆめまる</option>
           <option value="虫眼鏡">虫眼鏡</option>
+        </select>
+      </div>
+      <div className="flex flex-col w-72 gap-6">
+        <select
+          id="tag-position-select"
+          value={tagPosition}
+          onChange={handleTagPositionChange}
+          className="p-1"
+        >
+          <option value="">タグの位置を選択</option>
+          <option value="bottom-left">左下</option>
+          <option value="bottom-right">右下</option>
+          <option value="top-right">右上</option>
+          <option value="top-left">左上</option>
         </select>
       </div>
       <div className="flex flex-col w-72 gap-6">
