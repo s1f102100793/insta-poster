@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
 
 type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
+const memberNames: MemberName[] = ['てつや', 'しばゆー', 'りょう', 'としみつ', 'ゆめまる', '虫眼鏡'];
 type TagPosition = 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left';
+const tagPositions: TagPosition[] = ['bottom-left', 'bottom-right', 'top-right', 'top-left'];
 
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
@@ -37,7 +39,7 @@ function App() {
   };
   const handleMemberChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value as MemberName;
-    if (Object.values(memberColors).includes(value)) {
+    if (memberNames.includes(value)) {
       setSelectedMember(value);
     } else {
       alert("Invalid member name");
@@ -46,7 +48,7 @@ function App() {
   
   const handleTagPositionChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value as TagPosition;
-    if (Object.values(tagPosition).includes(value)) {
+    if (tagPositions.includes(value)) {
       setTagPosition(value);
     } else {
       alert("Invalid tag position");
