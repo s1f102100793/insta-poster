@@ -5,8 +5,9 @@ import { env } from "./env";
 import { instagram } from "./sns/instagram";
 import { s3 } from "./s3";
 import { ngrokUtils } from "./ngrok";
-import { MemberName, convertToRomaji } from "./service/memberNameConverters";
+import { MemberName } from "./service/memberNameConverters";
 import { TagPosition } from "./sns/instagram/getPositionCoordinates";
+import { path } from "./service/path";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
@@ -27,36 +28,26 @@ export const api = new Elysia({ prefix: "/api" })
       
       const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
       
-      const screenshotOutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/${member}スクショ/${member}_${title}.png`
-        : `../output/${member}_${title}_スクショ.png`;
+      const screenshotOutputPath = path.screenshotOutput(member, title)
       await sharpUtils.saveImage(screenshot, screenshotOutputPath)
       console.log("スクリーンショットの保存完了しました。")
 
-      const removeFrameImage1OutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/${member}画像/${member}_${title}.png`
-        : `../output/${member}_${title}_画像.png`;
-      await sharpUtils.removeFrame(secondCompositeImage, removeFrameImage1OutputPath)
+      const removeFrameImageOutputPath = path.removeFrameImageOutput(member, title)
+      await sharpUtils.removeFrame(secondCompositeImage, removeFrameImageOutputPath)
       console.log("フレームの削除完了しました。")
 
-      const firstPostImageEndPath = `complete/${convertToRomaji(member)}_${encodeURIComponent(title)}_1.png`
-      const firstPostImageLocalEndPath = `完成/${member}_${title}_1.png`;
-      const firstPostImageOutputPath = env.OUTPUT_PATH !== undefined
-        ? `${env.OUTPUT_PATH}/${firstPostImageLocalEndPath}`
-        : `../output/${member}_${title}_1.png`;
+      const firstPostImageEndPath = path.firstPostImageEnd(member, title)
+      const firstPostImageOutputPath = path.firstPostImageOutput(member, title)
       await sharpUtils.saveImage(firstPostImage, firstPostImageOutputPath)
       const firstPostImageBuffer = Buffer.from(await firstPostImage.arrayBuffer());
       await s3.upload(firstPostImageEndPath, firstPostImageBuffer)
       console.log("S3へのアップロード完了しました。")
 
-      const mergeImagesEndPath = `complete/${convertToRomaji(member)}_${encodeURIComponent(title)}_2.png`
-      const mergeImagesLocalEndPath = `完成/${member}_${title}_2.png`;
-      const mergeImagesOutputPath = env.OUTPUT_PATH !== undefined 
-        ? `${env.OUTPUT_PATH}/${mergeImagesLocalEndPath}`
-        : `../output/${member}_${title}_2.png`;
-      const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImage1OutputPath, screenshot, mergeImagesOutputPath)
+      const secondPostImageEndPath = path.secondPostImageEnd(member, title)
+      const secondPostImageOutputPath = path.secondPostImageOutput(member, title)
+      const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImageOutputPath, screenshot, secondPostImageOutputPath)
       console.log("画像のマージ完了しました。")
-      await s3.upload(mergeImagesEndPath, secondPostImageBuffer)
+      await s3.upload(secondPostImageEndPath, secondPostImageBuffer)
       console.log("S3へのアップロード完了しました。")
 
       let s3Endpoint = env.S3_ENDPOINT
@@ -65,7 +56,7 @@ export const api = new Elysia({ prefix: "/api" })
       if (isLocalhost) {
         s3Endpoint = await ngrokUtils.start()
       }
-      const contenaIds = await instagram.makeContena(member, tagPosition, s3Endpoint, firstPostImageEndPath, mergeImagesEndPath)
+      const contenaIds = await instagram.makeContena(member, tagPosition, s3Endpoint, firstPostImageEndPath, secondPostImageEndPath)
       if(contenaIds === null) return
       console.log("コンテナの作成完了しました。")
       const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)
