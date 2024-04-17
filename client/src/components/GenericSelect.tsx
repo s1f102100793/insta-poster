@@ -1,8 +1,8 @@
 import React from "react";
 
 type GenericSelectProps<T> = {
-  value: T | "";
-  options: T[] | string[];
+  value: T;
+  options: T[];
   placeholder?: string;
   onChange: (value: T) => void;
 };

@@ -2,7 +2,11 @@ import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
 import { GenericSelect } from "./components/GenericSelect";
 import { MemberName, memberNames } from "./types/memberNames";
-import { TagPosition, tagPositions } from "./types/tagPositions";
+import {
+  TagPosition,
+  tagPositions,
+  translateTagPositionToEnglish,
+} from "./types/tagPositions";
 import { ImageUpload } from "./components/ImageUpload";
 import { TextInput } from "./components/TextInput";
 
@@ -14,7 +18,7 @@ function App() {
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [selectedMember, setSelectedMember] = useState<MemberName>("てつや");
-  const [tagPosition, setTagPosition] = useState<TagPosition>("bottom-left");
+  const [tagPosition, setTagPosition] = useState<TagPosition>("左下");
   const [title, setTitle] = useState("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -60,7 +64,7 @@ function App() {
     formData.append("secondCompositeImage", secondCompositeImage);
     formData.append("screenshot", screenshot);
     formData.append("member", selectedMember);
-    formData.append("tagPosition", tagPosition);
+    formData.append("tagPosition", translateTagPositionToEnglish(tagPosition));
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
 
@@ -133,7 +137,7 @@ function App() {
         />
         <GenericSelect<TagPosition>
           value={tagPosition}
-          options={tagPositions.map((tag) => tag.label)}
+          options={tagPositions}
           onChange={setTagPosition}
           placeholder="タグの位置を選択"
         />
