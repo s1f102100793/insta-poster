@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
 import { GenericSelect } from "./components/GenericSelect";
-import { MemberName, memberNames } from "./types/memberNames";
+import { MemberName, memberColors, memberNames } from "./types/member";
 import {
   TagPosition,
   tagPositions,
@@ -22,15 +22,6 @@ function App() {
   const [title, setTitle] = useState("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-  const memberColors: Record<MemberName, string> = {
-    てつや: "bg-orange-200",
-    しばゆー: "bg-yellow-200",
-    りょう: "bg-blue-200",
-    としみつ: "bg-green-200",
-    ゆめまる: "bg-pink-200",
-    虫眼鏡: "bg-yellow-900",
-  };
 
   const getEmbedUrl = (url: string): string => {
     const regExp =
