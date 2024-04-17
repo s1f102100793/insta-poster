@@ -20,23 +20,25 @@ export const ImageUpload = ({ image, setImage, label, id }: ImageUploadProps) =>
   };
 
   return (
-    <div className="flex flex-col justify-end gap-4">
-      {image && (
-        <img
-          src={getImageUrl(image)}
-          alt={label}
-          className="w-72"
-        />
-      )}
+    <div className="flex flex-col max-h-full w-72 justify-end gap-4">
+      <div className="flex-grow overflow-hidden flex items-center justify-center">
+        {image && (
+          <img
+            src={getImageUrl(image)}
+            alt={label}
+            className="max-h-full w-auto object-contain"
+          />
+        )}
+      </div>
       <input
         type="file"
         id={`${id}-input`}
         onChange={(e) => handleImageChange(e, setImage)}
-        className="p-1"
+        className="flex-none p-1"
       />
       <label
         htmlFor={`${id}-input`}
-        className="mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
+        className="flex-none mb-2 block text-lg font-medium text-gray-900 dark:text-gray-300"
       >
         {label}
       </label>

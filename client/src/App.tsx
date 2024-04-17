@@ -79,7 +79,7 @@ function App() {
     <div
       className={`flex flex-col items-center justify-center min-h-screen gap-6 ${memberColors[selectedMember]}`}
     >
-      <div className="flex flex-row gap-6">
+      <div className="flex flex-row gap-6 border-2 border-white p-2 padding h-[400px]">
         <ImageUpload
           image={firstPostImage}
           setImage={setFirstPostImage}
