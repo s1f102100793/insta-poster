@@ -10,6 +10,11 @@ import {
 import { ImageUpload } from "./components/ImageUpload";
 import { TextInput } from "./components/TextInput";
 
+interface Member {
+  memberName: MemberName | "";
+  tagPosition: TagPosition | "";
+}
+
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
   const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(
@@ -17,8 +22,9 @@ function App() {
   );
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [selectedMember, setSelectedMember] = useState<MemberName>("てつや");
-  const [tagPosition, setTagPosition] = useState<TagPosition>("左下");
+  const [members, setMembers] = useState<Member[]>([
+    { memberName: "てつや", tagPosition: "左下" },
+  ]);
   const [title, setTitle] = useState("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -33,20 +39,17 @@ function App() {
     }
     return url;
   };
-  const isShortsUrl = (url: string): boolean => {
-    return /youtube\.com\/shorts\/([^#&?]*).*/.test(url);
-  };
 
   const postSns = async (): Promise<void> => {
     if (
-      !selectedMember ||
       !youtubeUrl ||
       !title ||
-      !tagPosition ||
       !firstPostImage ||
       !secondCompositeImage ||
-      !screenshot
+      !screenshot ||
+      members.some((member) => !member.memberName || !member.tagPosition)
     ) {
+      alert("必須項目が入力されていません");
       console.error("必須項目が入力されていません");
       return;
     }
@@ -54,8 +57,18 @@ function App() {
     formData.append("firstPostImage", firstPostImage);
     formData.append("secondCompositeImage", secondCompositeImage);
     formData.append("screenshot", screenshot);
-    formData.append("member", selectedMember);
-    formData.append("tagPosition", translateTagPositionToEnglish(tagPosition));
+    members.forEach((member, index) => {
+      if (member.tagPosition !== "") {
+        formData.append(`members[${index}][name]`, member.memberName!);
+        formData.append(
+          `members[${index}][tagPosition]`,
+          translateTagPositionToEnglish(member.tagPosition!),
+        );
+      } else {
+        console.error("Invalid member data");
+        alert("Invalid member data");
+      }
+    });
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
 
@@ -75,9 +88,34 @@ function App() {
     document.execCommand("copy");
   };
 
+  const handleMemberChange = (
+    index: number,
+    key: keyof Member,
+    value: string,
+  ) => {
+    const updatedMembers = members.map((m, i) =>
+      i === index ? { ...m, [key]: value } : m,
+    );
+    setMembers(updatedMembers);
+  };
+  const addMember = () => {
+    setMembers([...members, { memberName: "", tagPosition: "" }]);
+  };
+  const removeMember = () => {
+    if (members.length > 1) {
+      setMembers(members.slice(0, members.length - 1));
+    }
+  };
+
+  const getAvailableMembers = (currentIndex: number) => {
+    const selectedMembers = new Set(members.map((member) => member.memberName));
+    selectedMembers.delete(members[currentIndex].memberName);
+    return memberNames.filter((memberName) => !selectedMembers.has(memberName));
+  };
+
   return (
     <div
-      className={`flex flex-col items-center justify-center min-h-screen gap-6 ${memberColors[selectedMember]}`}
+      className={`flex flex-col items-center justify-center min-h-screen gap-6 ${memberColors[members]}`}
     >
       <div className="flex flex-row gap-6 border-2 border-white p-2 padding h-[400px]">
         <ImageUpload
@@ -99,54 +137,68 @@ function App() {
           id="screenshot"
         />
       </div>
-      <div className="flex flex-col w-72 gap-6">
-        <TextInput
-          value={youtubeUrl}
-          setValue={setYoutubeUrl}
-          placeholder="YouTubeのURLを入力"
-        />
-        {youtubeUrl && (
-          <>
-            {!isShortsUrl(youtubeUrl) && (
-              <iframe
-                className="bg-white"
-                title="YouTube video player"
-                src={getEmbedUrl(youtubeUrl)}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
-            )}
-          </>
-        )}
-      </div>
-      <div className="flex flex-col w-72 gap-6">
-        <GenericSelect<MemberName>
-          value={selectedMember}
-          options={memberNames}
-          onChange={setSelectedMember}
-          placeholder="メンバーを選択"
-        />
-        <GenericSelect<TagPosition>
-          value={tagPosition}
-          options={tagPositions}
-          onChange={setTagPosition}
-          placeholder="タグの位置を選択"
-        />
-      </div>
-      <div className="flex flex-col w-72 gap-6">
-        <TextInput
-          value={title}
-          setValue={setTitle}
-          placeholder="タイトルを入力"
-        />
-      </div>
-      <div className="flex flex-col w-72 gap-6">
-        <button
-          onClick={postSns}
-          className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
-        >
-          作成する
-        </button>
+      <div className="flex flex-row gap-6 border-2 border-white p-2 padding">
+        <div className="flex flex-col w-72 gap-6">
+          <TextInput
+            value={youtubeUrl}
+            setValue={setYoutubeUrl}
+            placeholder="YouTubeのURLを入力"
+          />
+          <iframe
+            className="bg-white"
+            title="YouTube video player"
+            src={getEmbedUrl(youtubeUrl)}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
+        </div>
+        <div className="flex flex-col items-center gap-6">
+          {members.map((member, index) => (
+            <div key={index} className="flex flex-col w-72 gap-6">
+              <GenericSelect<MemberName>
+                value={member.memberName}
+                options={getAvailableMembers(index)}
+                onChange={(value) =>
+                  handleMemberChange(index, "memberName", value)
+                }
+                placeholder="メンバーを選択"
+              />
+              <GenericSelect<TagPosition>
+                value={member.tagPosition}
+                options={tagPositions}
+                onChange={(value) =>
+                  handleMemberChange(index, "tagPosition", value)
+                }
+                placeholder="タグの位置を選択"
+              />
+            </div>
+          ))}
+          <button
+            onClick={removeMember}
+            className="bg-red-500 w-full text-white p-2 rounded"
+          >
+            削除
+          </button>
+          <button
+            onClick={addMember}
+            className="bg-green-500 w-full text-white p-2 rounded"
+          >
+            メンバーを追加
+          </button>
+        </div>
+        <div className="flex flex-col w-72 gap-6">
+          <TextInput
+            value={title}
+            setValue={setTitle}
+            placeholder="タイトルを入力"
+          />
+          <button
+            onClick={postSns}
+            className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
+          >
+            作成する
+          </button>
+        </div>
       </div>
       {instagramPostText && (
         <div className="flex flex-col w-72 gap-6">
