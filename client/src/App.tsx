@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { postsService } from "./shared/posts.service";
 import { GenericSelect } from "./components/GenericSelect";
-import { MemberName, memberColors, memberNames } from "./types/member";
+import { MemberName, memberNames } from "./types/member";
 import {
   TagPosition,
   tagPositions,
@@ -9,8 +9,9 @@ import {
 } from "./types/tagPositions";
 import { ImageUpload } from "./components/ImageUpload";
 import { TextInput } from "./components/TextInput";
+import { BackgroundLayers } from "./components/BackgroundLayers";
 
-interface Member {
+export interface Member {
   memberName: MemberName | "";
   tagPosition: TagPosition | "";
 }
@@ -114,108 +115,111 @@ function App() {
   };
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center min-h-screen gap-6 ${memberColors[members]}`}
-    >
-      <div className="flex flex-row gap-6 border-2 border-white p-2 padding h-[400px]">
-        <ImageUpload
-          image={firstPostImage}
-          setImage={setFirstPostImage}
-          label="投稿1枚目"
-          id="firstPostImage"
-        />
-        <ImageUpload
-          image={secondCompositeImage}
-          setImage={setSecondCompositeImage}
-          label="投稿2枚目の合成用"
-          id="secondCompositeImage"
-        />
-        <ImageUpload
-          image={screenshot}
-          setImage={setScreenshot}
-          label="スクリーンショット"
-          id="screenshot"
-        />
+    <div className="relative w-full min-h-screen">
+      <BackgroundLayers members={members} />
+      <div
+        className={`flex flex-col items-center justify-center min-h-screen gap-6`}
+      >
+        <div className="flex flex-row gap-6 border-2 border-white p-2 padding h-[400px]">
+          <ImageUpload
+            image={firstPostImage}
+            setImage={setFirstPostImage}
+            label="投稿1枚目"
+            id="firstPostImage"
+          />
+          <ImageUpload
+            image={secondCompositeImage}
+            setImage={setSecondCompositeImage}
+            label="投稿2枚目の合成用"
+            id="secondCompositeImage"
+          />
+          <ImageUpload
+            image={screenshot}
+            setImage={setScreenshot}
+            label="スクリーンショット"
+            id="screenshot"
+          />
+        </div>
+        <div className="flex flex-row gap-6 border-2 border-white p-2 padding">
+          <div className="flex flex-col w-72 gap-6">
+            <TextInput
+              value={youtubeUrl}
+              setValue={setYoutubeUrl}
+              placeholder="YouTubeのURLを入力"
+            />
+            <iframe
+              className="bg-white"
+              title="YouTube video player"
+              src={getEmbedUrl(youtubeUrl)}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <div className="flex flex-col items-center gap-6">
+            {members.map((member, index) => (
+              <div key={index} className="flex flex-col w-72 gap-6">
+                <GenericSelect<MemberName>
+                  value={member.memberName}
+                  options={getAvailableMembers(index)}
+                  onChange={(value) =>
+                    handleMemberChange(index, "memberName", value)
+                  }
+                  placeholder="メンバーを選択"
+                />
+                <GenericSelect<TagPosition>
+                  value={member.tagPosition}
+                  options={tagPositions}
+                  onChange={(value) =>
+                    handleMemberChange(index, "tagPosition", value)
+                  }
+                  placeholder="タグの位置を選択"
+                />
+              </div>
+            ))}
+            <button
+              onClick={removeMember}
+              className="bg-red-500 w-full text-white p-2 rounded"
+            >
+              削除
+            </button>
+            <button
+              onClick={addMember}
+              className="bg-green-500 w-full text-white p-2 rounded"
+            >
+              メンバーを追加
+            </button>
+          </div>
+          <div className="flex flex-col w-72 gap-6">
+            <TextInput
+              value={title}
+              setValue={setTitle}
+              placeholder="タイトルを入力"
+            />
+            <button
+              onClick={postSns}
+              className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
+            >
+              作成する
+            </button>
+          </div>
+        </div>
+        {instagramPostText && (
+          <div className="flex flex-col w-72 gap-6">
+            <textarea
+              ref={textAreaRef}
+              value={instagramPostText}
+              readOnly
+              className="textarea"
+            />
+            <button
+              onClick={copyToClipboard}
+              className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
+            >
+              コピー
+            </button>
+          </div>
+        )}
       </div>
-      <div className="flex flex-row gap-6 border-2 border-white p-2 padding">
-        <div className="flex flex-col w-72 gap-6">
-          <TextInput
-            value={youtubeUrl}
-            setValue={setYoutubeUrl}
-            placeholder="YouTubeのURLを入力"
-          />
-          <iframe
-            className="bg-white"
-            title="YouTube video player"
-            src={getEmbedUrl(youtubeUrl)}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
-        </div>
-        <div className="flex flex-col items-center gap-6">
-          {members.map((member, index) => (
-            <div key={index} className="flex flex-col w-72 gap-6">
-              <GenericSelect<MemberName>
-                value={member.memberName}
-                options={getAvailableMembers(index)}
-                onChange={(value) =>
-                  handleMemberChange(index, "memberName", value)
-                }
-                placeholder="メンバーを選択"
-              />
-              <GenericSelect<TagPosition>
-                value={member.tagPosition}
-                options={tagPositions}
-                onChange={(value) =>
-                  handleMemberChange(index, "tagPosition", value)
-                }
-                placeholder="タグの位置を選択"
-              />
-            </div>
-          ))}
-          <button
-            onClick={removeMember}
-            className="bg-red-500 w-full text-white p-2 rounded"
-          >
-            削除
-          </button>
-          <button
-            onClick={addMember}
-            className="bg-green-500 w-full text-white p-2 rounded"
-          >
-            メンバーを追加
-          </button>
-        </div>
-        <div className="flex flex-col w-72 gap-6">
-          <TextInput
-            value={title}
-            setValue={setTitle}
-            placeholder="タイトルを入力"
-          />
-          <button
-            onClick={postSns}
-            className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
-          >
-            作成する
-          </button>
-        </div>
-      </div>
-      {instagramPostText && (
-        <div className="flex flex-col w-72 gap-6">
-          <textarea
-            ref={textAreaRef}
-            value={instagramPostText}
-            readOnly
-            className="textarea"
-          />
-          <button
-            onClick={copyToClipboard}
-            className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
-          >
-            コピー
-          </button>
-        </div>
-      )}
     </div>
   );
 }
