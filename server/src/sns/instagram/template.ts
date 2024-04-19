@@ -1,13 +1,14 @@
-import { MemberName } from "../../service/memberNameConverters";
+import { Member } from "../../api";
 import { youtube } from "../youtube";
 
 export const instagramTemplate = {
-  async post(member:MemberName, title:string, youtubeUrl:string) {
+  async post(membersData:Member[], title:string, youtubeUrl:string) {
     const videoId = youtube.getVideoId(youtubeUrl) as string
     const youtubeTitle = await youtube.getVideoTitle(videoId)
+    const memberNameHashtags = membersData.map(member =>
+      `#東海オンエア${member.memberName}`).join(' ');
 
-    return `
-#東海オンエア${member}
+    return `#${memberNameHashtags}
 【${title}】
 
 Source: 

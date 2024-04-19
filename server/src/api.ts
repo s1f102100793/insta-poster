@@ -32,7 +32,7 @@ export const api = new Elysia({ prefix: "/api" })
       console.log("必須項目が入力されました。")
       console.log("memberData",membersData)
       
-      const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
+      const instagramPostText = await instagramTemplate.post(membersData, title, youtubeUrl)
       
       const screenshotOutputPath = path.screenshotOutput(member, title)
       await sharpUtils.saveImage(screenshot, screenshotOutputPath)
