@@ -1,3 +1,6 @@
+import { Member } from "../api";
+import { TagPosition } from "../sns/instagram/getPositionCoordinates";
+
  export type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
 
 const memberNameToRomaji: Record<MemberName, string> = {
@@ -25,3 +28,27 @@ const memberNameToInstagramId: Record<MemberName, string> = {
 export const convertToInstagramId = (memberName: MemberName): string | undefined=> {
   return memberNameToInstagramId[memberName] || undefined;
 };
+
+export const parseMembersData = (formData: FormData): Member[] => {
+  const membersData: Member[] = [];
+  for (let key of formData.keys()) {
+      const match = key.match(/members\[(\d+)\]\[(memberName|tagPosition)\]/);
+      if (match) {
+          const index = parseInt(match[1], 10);
+          const property = match[2] as keyof Member;
+          if (!membersData[index]) {
+              membersData[index] = { memberName: "", tagPosition: "" };
+          }
+          const value = formData.get(key);
+          if (typeof value === "string" && property === "memberName") {
+              membersData[index].memberName = value as MemberName;
+          } else if (typeof value === "string" && property === "tagPosition") {
+              membersData[index].tagPosition = value as TagPosition;
+          } else {
+              console.error("Expected string, received:", value);
+              membersData[index][property] = "";
+          }
+      }
+  }
+  return membersData;
+}

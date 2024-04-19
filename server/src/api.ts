@@ -5,19 +5,24 @@ import { env } from "./env";
 import { instagram } from "./sns/instagram";
 import { s3 } from "./s3";
 import { ngrokUtils } from "./ngrok";
-import { MemberName } from "./service/memberNameConverters";
+import { MemberName, parseMembersData } from "./service/memberNameConverters";
 import { TagPosition } from "./sns/instagram/getPositionCoordinates";
 import { path } from "./service/path";
+
+export interface Member {
+  memberName: MemberName | "";
+  tagPosition: TagPosition | "";
+}
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/posts", (router) =>
     router.post("/", async ({ request }) => {
       console.log("スタートしました。")
       const formData = await request.formData();
-      const member = formData.get("member") as MemberName
+      console.log("formData",formData)
       const youtubeUrl = formData.get("youtubeUrl") as string
       const title = formData.get("title") as string
-      const tagPosition = formData.get("tagPosition") as TagPosition
+      const membersData = parseMembersData(formData);
       const firstPostImage = formData.get("firstPostImage") as File | null
       const secondCompositeImage = formData.get("secondCompositeImage") as File | null
       const screenshot = formData.get("screenshot") as File | null
@@ -25,6 +30,7 @@ export const api = new Elysia({ prefix: "/api" })
         return { message: "image1 and image2 are required" }
       }
       console.log("必須項目が入力されました。")
+      console.log("memberData",membersData)
       
       const instagramPostText = await instagramTemplate.post(member, title, youtubeUrl)
       

@@ -22,11 +22,11 @@ function App() {
     null,
   );
   const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("https://www.youtube.com/watch?v=0jHP8gtHtn0&t=1132s&ab_channel=%E6%9D%B1%E6%B5%B7%E3%82%AA%E3%83%B3%E3%82%A8%E3%82%A2");
   const [members, setMembers] = useState<Member[]>([
     { memberName: "てつや", tagPosition: "左下" },
   ]);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("テスト");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -60,7 +60,7 @@ function App() {
     formData.append("screenshot", screenshot);
     members.forEach((member, index) => {
       if (member.tagPosition !== "") {
-        formData.append(`members[${index}][name]`, member.memberName!);
+        formData.append(`members[${index}][memberName]`, member.memberName!);
         formData.append(
           `members[${index}][tagPosition]`,
           translateTagPositionToEnglish(member.tagPosition!),
