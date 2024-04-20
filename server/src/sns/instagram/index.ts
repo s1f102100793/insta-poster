@@ -1,7 +1,7 @@
 import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
-import { MemberName, convertToInstagramId } from "../../service/memberNameConverters";
+import { MemberName, convertToInstagramId } from "../../service/memberName";
 import { TagPosition, getPositionCoordinates } from "./getPositionCoordinates";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;

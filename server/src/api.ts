@@ -2,12 +2,12 @@ import { Elysia } from "elysia";
 import { instagramTemplate } from "./sns/instagram/template";
 import { sharpUtils } from "./sharp";
 import { env } from "./env";
-import { instagram } from "./sns/instagram";
 import { s3 } from "./s3";
 import { ngrokUtils } from "./ngrok";
-import { MemberName, parseMembersData } from "./service/memberNameConverters";
+import { MemberName, getFolderPrefix, getUnitName, parseMembersData } from "./service/memberName";
 import { TagPosition } from "./sns/instagram/getPositionCoordinates";
 import { path } from "./service/path";
+import { instagram } from "./sns/instagram";
 
 export interface Member {
   memberName: MemberName | "";
@@ -23,6 +23,7 @@ export const api = new Elysia({ prefix: "/api" })
       const youtubeUrl = formData.get("youtubeUrl") as string
       const title = formData.get("title") as string
       const membersData = parseMembersData(formData);
+      const unitName = getUnitName(membersData)
       const firstPostImage = formData.get("firstPostImage") as File | null
       const secondCompositeImage = formData.get("secondCompositeImage") as File | null
       const screenshot = formData.get("screenshot") as File | null
@@ -30,27 +31,27 @@ export const api = new Elysia({ prefix: "/api" })
         return { message: "image1 and image2 are required" }
       }
       console.log("必須項目が入力されました。")
-      console.log("memberData",membersData)
       
       const instagramPostText = await instagramTemplate.post(membersData, title, youtubeUrl)
       
-      const screenshotOutputPath = path.screenshotOutput(member, title)
+      const folderPrefix = getFolderPrefix(membersData);
+      const screenshotOutputPath = path.screenshotOutput(unitName, title, folderPrefix)
       await sharpUtils.saveImage(screenshot, screenshotOutputPath)
       console.log("スクリーンショットの保存完了しました。")
 
-      const removeFrameImageOutputPath = path.removeFrameImageOutput(member, title)
+      const removeFrameImageOutputPath = path.removeFrameImageOutput(unitName, title, folderPrefix)
       await sharpUtils.removeFrame(secondCompositeImage, removeFrameImageOutputPath)
       console.log("フレームの削除完了しました。")
 
-      const firstPostImageEndPath = path.firstPostImageEnd(member, title)
-      const firstPostImageOutputPath = path.firstPostImageOutput(member, title)
+      const firstPostImageEndPath = path.firstPostImageEnd(unitName, title)
+      const firstPostImageOutputPath = path.firstPostImageOutput(unitName, title)
       await sharpUtils.saveImage(firstPostImage, firstPostImageOutputPath)
       const firstPostImageBuffer = Buffer.from(await firstPostImage.arrayBuffer());
       await s3.upload(firstPostImageEndPath, firstPostImageBuffer)
       console.log("S3へのアップロード完了しました。")
 
-      const secondPostImageEndPath = path.secondPostImageEnd(member, title)
-      const secondPostImageOutputPath = path.secondPostImageOutput(member, title)
+      const secondPostImageEndPath = path.secondPostImageEnd(unitName, title)
+      const secondPostImageOutputPath = path.secondPostImageOutput(unitName, title)
       const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImageOutputPath, screenshot, secondPostImageOutputPath)
       console.log("画像のマージ完了しました。")
       await s3.upload(secondPostImageEndPath, secondPostImageBuffer)
@@ -62,7 +63,7 @@ export const api = new Elysia({ prefix: "/api" })
       if (isLocalhost) {
         s3Endpoint = await ngrokUtils.start()
       }
-      const contenaIds = await instagram.makeContena(member, tagPosition, s3Endpoint, firstPostImageEndPath, secondPostImageEndPath)
+      const contenaIds = await instagram.makeContena(membersData, tagPosition, s3Endpoint, firstPostImageEndPath, secondPostImageEndPath)
       if(contenaIds === null) return
       console.log("コンテナの作成完了しました。")
       const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)
