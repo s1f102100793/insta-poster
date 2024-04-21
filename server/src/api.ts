@@ -5,7 +5,7 @@ import { env } from "./env";
 import { s3 } from "./s3";
 import { ngrokUtils } from "./ngrok";
 import { MemberName, getFolderPrefix, getUnitName, parseMembersData } from "./service/memberName";
-import { TagPosition } from "./sns/instagram/getPositionCoordinates";
+import { TagPosition } from "./service/TagPosition";
 import { path } from "./service/path";
 import { instagram } from "./sns/instagram";
 
@@ -19,7 +19,6 @@ export const api = new Elysia({ prefix: "/api" })
     router.post("/", async ({ request }) => {
       console.log("スタートしました。")
       const formData = await request.formData();
-      console.log("formData",formData)
       const youtubeUrl = formData.get("youtubeUrl") as string
       const title = formData.get("title") as string
       const membersData = parseMembersData(formData);
@@ -63,7 +62,7 @@ export const api = new Elysia({ prefix: "/api" })
       if (isLocalhost) {
         s3Endpoint = await ngrokUtils.start()
       }
-      const contenaIds = await instagram.makeContena(membersData, tagPosition, s3Endpoint, firstPostImageEndPath, secondPostImageEndPath)
+      const contenaIds = await instagram.makeContena(membersData, firstPostImageEndPath, secondPostImageEndPath)
       if(contenaIds === null) return
       console.log("コンテナの作成完了しました。")
       const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)

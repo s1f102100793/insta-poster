@@ -1,8 +1,9 @@
 import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
-import { MemberName, convertToInstagramId } from "../../service/memberName";
-import { TagPosition, getPositionCoordinates } from "./getPositionCoordinates";
+import { convertToInstagramId } from "../../service/memberName";
+import { TagPosition, getPositionCoordinates,  } from "../../service/TagPosition";
+import { Member } from "../../api";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
@@ -13,18 +14,34 @@ const headers = {
 };
 
 export const instagram = {
-  async makeContena(member: MemberName, tagPosition: TagPosition, s3Endpoint: string, firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
+  async makeContena(members: Member[], firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const secondPostImageMediaUrl = await s3.generatePresignedUrl(secondPostImageOutputPath);
 
-    const position = getPositionCoordinates(tagPosition);
+    const positionCounts: Record<TagPosition, number> = {
+      'bottom-left': 0,
+      'bottom-right': 0,
+      'top-right': 0,
+      'top-left': 0,
+      'bottom-center': 0
+    };
+
+    const userTags = members.map(member => {
+      if (member.memberName !== "" && member.tagPosition !== "") {
+        const instagramId = convertToInstagramId(member.memberName);
+        const position = getPositionCoordinates(member.tagPosition, positionCounts[member.tagPosition]);
+        positionCounts[member.tagPosition]++;
+        return instagramId ? { username: instagramId, ...position } : null;
+      }
+    }).filter(tag => tag !== null);
+
     const mediaUrls = [
       {
         media_url: firstPostImageMediaUrl,
         type: 'IMAGE',
-        user_tags: [{ username: `${convertToInstagramId(member)}`, ...position }]
+        user_tags: userTags
       },
       {
         media_url: secondPostImageMediaUrl,

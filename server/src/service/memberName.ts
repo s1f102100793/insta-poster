@@ -1,5 +1,5 @@
 import { Member } from "../api";
-import { TagPosition } from "../sns/instagram/getPositionCoordinates";
+import { TagPosition } from "./TagPosition";
 
 export type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
 
