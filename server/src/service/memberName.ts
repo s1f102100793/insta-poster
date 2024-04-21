@@ -140,7 +140,6 @@ export const getUnitName = (members: Member[]): string => {
 }
 
 export const convertUnitNameToRomaji = (unitName: string): string => {
-  console.log("unitName",unitName);
   return unitNameToRomaji[unitName];
 };
 
