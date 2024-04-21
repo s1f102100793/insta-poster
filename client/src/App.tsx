@@ -10,6 +10,7 @@ import {
 import { ImageUpload } from "./components/ImageUpload";
 import { TextInput } from "./components/TextInput";
 import { BackgroundLayers } from "./components/BackgroundLayers";
+import { Button } from "./components/Button";
 
 export interface Member {
   memberName: MemberName | "";
@@ -22,11 +23,11 @@ function App() {
     null,
   );
   const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [youtubeUrl, setYoutubeUrl] = useState("https://www.youtube.com/watch?v=0jHP8gtHtn0&t=1132s&ab_channel=%E6%9D%B1%E6%B5%B7%E3%82%AA%E3%83%B3%E3%82%A8%E3%82%A2");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const [members, setMembers] = useState<Member[]>([
-    { memberName: "てつや", tagPosition: "左下" },
+    { memberName: "", tagPosition: "" },
   ]);
-  const [title, setTitle] = useState("テスト");
+  const [title, setTitle] = useState("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -74,9 +75,11 @@ function App() {
     formData.append("title", title);
 
     try {
+      alert("作成しました");
       const response = await postsService.postSns(formData);
       const result = await response.text();
       setInstagramPostText(result);
+      alert("投稿が正常に送信されました");
     } catch (error) {
       console.error("Error posting data", error);
     }
@@ -176,18 +179,12 @@ function App() {
                 />
               </div>
             ))}
-            <button
-              onClick={removeMember}
-              className="bg-red-500 w-full text-white p-2 rounded"
-            >
-              削除
-            </button>
-            <button
+            <Button color="bg-red-500" text="削除" onClick={removeMember} />
+            <Button
+              color="bg-green-500"
+              text="メンバーを追加"
               onClick={addMember}
-              className="bg-green-500 w-full text-white p-2 rounded"
-            >
-              メンバーを追加
-            </button>
+            />
           </div>
           <div className="flex flex-col w-72 gap-6">
             <TextInput
@@ -195,12 +192,7 @@ function App() {
               setValue={setTitle}
               placeholder="タイトルを入力"
             />
-            <button
-              onClick={postSns}
-              className="justify-end p-1 border border-solid rounded cursor-pointer hover:bg-gray-300"
-            >
-              作成する
-            </button>
+            <Button color="bg-blue-500" text="作成する" onClick={postSns} />
           </div>
         </div>
         {instagramPostText && (
