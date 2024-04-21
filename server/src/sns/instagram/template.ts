@@ -1,4 +1,5 @@
 import { Member } from "../../api";
+import { getUnitName } from "../../service/memberName";
 import { youtube } from "../youtube";
 
 export const instagramTemplate = {
@@ -7,8 +8,10 @@ export const instagramTemplate = {
     const youtubeTitle = await youtube.getVideoTitle(videoId)
     const memberNameHashtags = membersData.map(member =>
       `#東海オンエア${member.memberName}`).join(' ');
+    const unitName = getUnitName(membersData);
+    const unitNameHashtag = membersData.length === 2 || membersData.length === 3 ? `#${unitName}` : '';
 
-    return `#${memberNameHashtags}
+    return `${memberNameHashtags}
 【${title}】
 
 Source: 
@@ -28,6 +31,6 @@ ${youtubeUrl}
 #東海オンエア虫眼鏡
 #東海オンエアファンと繋がりたい
 #東海オンエア好きな人と繋がりたい
-        `;
+${unitNameHashtag}`;
   }
 };
