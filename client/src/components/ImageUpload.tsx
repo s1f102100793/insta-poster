@@ -21,7 +21,7 @@ export const ImageUpload = ({ image, setImage, label, id }: ImageUploadProps) =>
 
   return (
     <div className="flex flex-col max-h-full w-72 justify-end gap-4">
-      <div className="flex-grow overflow-hidden flex items-center justify-center">
+      <div className={`flex-grow overflow-hidden flex items-center justify-center ${!image ? 'bg-white' : ''}`}>
         {image && (
           <img
             src={getImageUrl(image)}
