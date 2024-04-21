@@ -1,2 +1,4 @@
 node_modules
 .turbo
+docker/dev/.env
+docker/dev/minio
