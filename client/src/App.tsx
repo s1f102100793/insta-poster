@@ -123,7 +123,7 @@ function App() {
       <div
         className={`flex flex-col items-center justify-center min-h-screen gap-6`}
       >
-        <div className="flex flex-row gap-6 border-2 border-white p-2 padding h-[400px]">
+        <div className="flex flex-row gap-6 border-2 border-white p-3 padding h-[400px]">
           <ImageUpload
             image={firstPostImage}
             setImage={setFirstPostImage}
@@ -143,7 +143,7 @@ function App() {
             id="screenshot"
           />
         </div>
-        <div className="flex flex-row gap-6 border-2 border-white p-2 padding">
+        <div className="flex flex-row gap-6 border-2 border-white p-3 padding">
           <div className="flex flex-col w-72 gap-6">
             <TextInput
               value={youtubeUrl}
