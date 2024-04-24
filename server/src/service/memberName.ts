@@ -3,6 +3,15 @@ import { TagPosition } from "./TagPosition";
 
 export type MemberName = 'てつや' | 'しばゆー' | 'りょう' | 'としみつ' | 'ゆめまる' | '虫眼鏡';
 
+const memberNameToRomaji = {
+  てつや: "tetuya",
+  しばゆー: "shibayu",
+  りょう: "ryoo",
+  としみつ: "toshimitsu",
+  ゆめまる: "yumemaru",
+  虫眼鏡: "mushimegane"
+}
+
 const memberNameToInstagramId: Record<MemberName, string> = {
   てつや: "to_tetsuya",
   しばゆー: "to___shibayu",
@@ -139,9 +148,18 @@ export const getUnitName = (members: Member[]): string => {
   return unitNames[key] || memberNames.join('・');
 }
 
-export const convertUnitNameToRomaji = (unitName: string): string => {
-  return unitNameToRomaji[unitName];
+export const convertUnitNameToRomaji = (unitName: string): string | undefined => {
+  if (unitNameToRomaji[unitName]) {
+    return unitNameToRomaji[unitName];
+  } else if (memberNameToRomaji[unitName as MemberName]) {
+    return memberNameToRomaji[unitName as MemberName];
+  } else if (unitName === "4人以上") {
+    return "four_or_more";
+  } else {
+    return undefined;
+  }
 };
+
 
 export const getFolderPrefix = (membersData: Member[]): string => {
   const numberOfMembers = membersData.length;
