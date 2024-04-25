@@ -32,6 +32,7 @@
     "child_process": "^1.0.2",
     "drizzle-orm": "^0.28.6",
     "elysia": "^0.7.15",
+    "elysia-basic-auth": "^1.0.7",
     "fs": "^0.0.1-security",
     "playwright": "1.41.0",
     "sharp": "^0.33.3",
