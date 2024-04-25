@@ -4,6 +4,7 @@ import staticPlugin from "@elysiajs/static";
 import { swagger } from "@elysiajs/swagger";
 import { env } from "./env";
 import { api } from "./api";
+import { basicAuth } from "elysia-basic-auth";
 
 const app = new Elysia()
   .use(cors())
@@ -24,6 +25,13 @@ const app = new Elysia()
     set.redirect = "/index.html";
   })
   .use(staticPlugin({ prefix: "/", assets: env.PUBLIC_DIR }))
+  .use(basicAuth({
+    users: [{ username: 'admin', password: 'admin' }],
+    realm: '',
+    errorMessage: 'Unauthorized',
+    exclude: ['public/**'],
+    noErrorThrown: false,
+  }))
   .use(api);
 
 export default app;

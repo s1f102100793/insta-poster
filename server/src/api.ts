@@ -15,6 +15,10 @@ export interface Member {
 }
 
 export const api = new Elysia({ prefix: "/api" })
+  .group("/login", (router) =>
+    router.post("/", async () => {
+      return ({ message: "You are authenticated" });
+    }))
   .group("/posts", (router) =>
     router.post("/", async ({ request }) => {
       console.log("スタートしました。")
