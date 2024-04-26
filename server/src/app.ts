@@ -26,7 +26,7 @@ const app = new Elysia()
   })
   .use(staticPlugin({ prefix: "/", assets: env.PUBLIC_DIR }))
   .use(basicAuth({
-    users: [{ username: 'admin', password: 'admin' }],
+    users: [{ username: env.USER_NAME, password: env.PASSWORD }],
     realm: '',
     errorMessage: 'Unauthorized',
     exclude: ['public/**'],
