@@ -1,19 +1,27 @@
-import React from 'react';
+import React from "react";
 
 interface TextInputProps {
   value: string;
-  setValue:  (value: React.SetStateAction<string>) => void;
+  setValue: (value: React.SetStateAction<string>) => void;
   placeholder?: string;
   className?: string;
+  type?: string;
 }
 
-export const TextInput: React.FC<TextInputProps> = ({ value, setValue, placeholder, className }) => {
+export const TextInput: React.FC<TextInputProps> = ({
+  value,
+  setValue,
+  placeholder,
+  className,
+  type,
+}) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setValue(event.target.value);
   };
+  const inputType = type || "text";
   return (
     <input
-      type="text"
+      type={inputType}
       value={value}
       onChange={handleChange}
       placeholder={placeholder}
