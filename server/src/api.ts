@@ -8,6 +8,7 @@ import { MemberName, getFolderPrefix, getUnitName, parseMembersData } from "./se
 import { TagPosition } from "./service/TagPosition";
 import { path } from "./service/path";
 import { instagram } from "./sns/instagram";
+import { basicAuth } from "elysia-basic-auth";
 
 export interface Member {
   memberName: MemberName | "";
@@ -15,10 +16,18 @@ export interface Member {
 }
 
 export const api = new Elysia({ prefix: "/api" })
-  .group("/login", (router) =>
+  .group("/login", (router) => {
+    router.use(basicAuth({
+      users: [{ username: env.USER_NAME, password: env.PASSWORD }],
+      realm: 'Secure Area',
+      errorMessage: 'Unauthorized',
+      noErrorThrown: false
+    })), 
     router.post("/", async () => {
       return ({ message: "You are authenticated" });
-    }))
+    })
+    return router
+  })
   .group("/posts", (router) =>
     router.post("/", async ({ request }) => {
       console.log("スタートしました。")
