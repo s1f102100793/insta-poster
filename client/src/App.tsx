@@ -17,6 +17,8 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
+type PostImageCount = "一枚" | "二枚";
+
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
   const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(
@@ -28,6 +30,7 @@ function App() {
     { memberName: "", tagPosition: "" },
   ]);
   const [title, setTitle] = useState("");
+  const [postImageCount, setPostImageCount] = useState<PostImageCount>("一枚");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -46,25 +49,47 @@ function App() {
     if (
       !youtubeUrl ||
       !title ||
-      !firstPostImage ||
-      !secondCompositeImage ||
-      !screenshot ||
       members.some((member) => !member.memberName || !member.tagPosition)
     ) {
       alert("必須項目が入力されていません");
       console.error("必須項目が入力されていません");
       return;
     }
+
+    const isSingleImageRequired = postImageCount === "一枚" && !firstPostImage;
+    const isTripleImageRequired =
+      postImageCount === "二枚" &&
+      (!firstPostImage || !secondCompositeImage || !screenshot);
+
+    const canAppendSingleImage = postImageCount === "一枚" && firstPostImage;
+    const canAppendTripleImages =
+      postImageCount === "二枚" &&
+      firstPostImage &&
+      secondCompositeImage &&
+      screenshot;
+
+    if (isSingleImageRequired || isTripleImageRequired) {
+      alert("必要な画像がすべて設定されていません");
+      console.error("必要な画像がすべて設定されていません");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("firstPostImage", firstPostImage);
-    formData.append("secondCompositeImage", secondCompositeImage);
-    formData.append("screenshot", screenshot);
+
+    if (canAppendSingleImage) {
+      formData.append("postImage", firstPostImage);
+    } else if (canAppendTripleImages) {
+      formData.append("firstPostImage", firstPostImage);
+      formData.append("secondCompositeImage", secondCompositeImage);
+      formData.append("screenshot", screenshot);
+    }
+
     members.forEach((member, index) => {
       if (member.tagPosition !== "") {
-        formData.append(`members[${index}][memberName]`, member.memberName!);
+        formData.append(`members[${index}][memberName]`, member.memberName);
         formData.append(
           `members[${index}][tagPosition]`,
-          translateTagPositionToEnglish(member.tagPosition!),
+          translateTagPositionToEnglish(member.tagPosition),
         );
       } else {
         console.error("Invalid member data");
@@ -187,6 +212,11 @@ function App() {
             />
           </div>
           <div className="flex flex-col w-72 gap-6">
+            <GenericSelect<PostImageCount>
+              value={postImageCount}
+              options={["一枚", "二枚"]}
+              onChange={setPostImageCount}
+            />
             <TextInput
               value={title}
               setValue={setTitle}
