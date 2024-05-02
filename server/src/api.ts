@@ -1,13 +1,12 @@
 import { Elysia } from "elysia";
-import { instagramTemplate } from "./sns/instagram/template";
 import { env } from "./env";
 import { MemberName, getFolderPrefix, getUnitName, parseMembersData } from "./service/memberName";
 import { TagPosition } from "./service/TagPosition";
 import { path } from "./service/path";
-import { instagram } from "./sns/instagram";
 import { basicAuth } from "elysia-basic-auth";
 import { sharpUseCase } from "./sharp/useCase";
 import { s3UseCase } from "./s3/useCase";
+import { instagramUseCase } from "./sns/instagram/useCase";
 
 export interface Member {
   memberName: MemberName | "";
@@ -56,18 +55,9 @@ export const api = new Elysia({ prefix: "/api" })
 
       // S3_ENDPOINTがlocalhostの場合、ngrokを起動する
       await s3UseCase.checkEndpoint()
-
-      const instagramPostText = await instagramTemplate.post(membersData, title, youtubeUrl)
-      const contenaIds = await instagram.makeContena(membersData, firstPostImageEndPath, secondPostImageEndPath)
-      if(contenaIds === null) return
-      console.log("コンテナの作成完了しました。")
-      const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)
-      if(groupContenaId === null) return
-      console.log("グループコンテナの作成完了しました。")
-      const data = await instagram.contentPublish(groupContenaId)
-      if(data === null) return
-      console.log("自動投稿に成功しました！")
-
-      return instagramPostText
+      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, firstPostImageEndPath, secondPostImageEndPath)  
+      
+      if (!postResult) return
+      return postResult.postText
     }
   ));
