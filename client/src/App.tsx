@@ -25,11 +25,11 @@ function App() {
     null,
   );
   const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState("https://www.youtube.com/watch?v=TZSIb0EYTHg&ab_channel=%E6%9D%B1%E6%B5%B7%E3%82%AA%E3%83%B3%E3%82%A8%E3%82%A2%E3%81%AE%E6%8E%A7%E3%81%88%E5%AE%A4");
   const [members, setMembers] = useState<Member[]>([
-    { memberName: "", tagPosition: "" },
+    { memberName: "てつや", tagPosition: "中央下" },
   ]);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState("ウインク");
   const [postImageCount, setPostImageCount] = useState<PostImageCount>("一枚");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -98,6 +98,7 @@ function App() {
     });
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
+    formData.append("postImageCount", postImageCount);
 
     try {
       alert("作成しました");
