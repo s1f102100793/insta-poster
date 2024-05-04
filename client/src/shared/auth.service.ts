@@ -10,6 +10,7 @@ export const authService = {
       },
     })
     if (!response.ok) {
+      alert('Failed to login');
       throw new Error('Failed to login');
     }
   }
