@@ -54,19 +54,13 @@ export const api = new Elysia({ prefix: "/api" })
       console.log("必須項目が入力されました。")
       
       const folderPrefix = getFolderPrefix(membersData);
-      const screenshotOutputPath = path.screenshotOutput(unitName, title, folderPrefix)
-      const removeFrameImageOutputPath = path.removeFrameImageOutput(unitName, title, folderPrefix)
-      const firstPostImageEndPath = path.firstPostImageEnd(unitName, title)
-      const firstPostImageOutputPath = path.firstPostImageOutput(unitName, title)
-      const secondPostImageEndPath = path.secondPostImageEnd(unitName, title)
-      const secondPostImageOutputPath = path.secondPostImageOutput(unitName, title)
-
-      await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, firstPostImageOutputPath, screenshotOutputPath, removeFrameImageOutputPath)
-      await s3UseCase.uploadImages(firstPostImage, screenshot, secondPostImageOutputPath, removeFrameImageOutputPath, firstPostImageEndPath, secondPostImageEndPath)
+      const paths = path.getPaths(unitName, title, folderPrefix);
+      await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, paths.firstPostImageOutput, paths.screenshotOutput, paths.removeFrameImageOutput);
+      await s3UseCase.uploadImages(firstPostImage, screenshot, paths.secondPostImageOutput, paths.removeFrameImageOutput, paths.firstPostImageEnd, paths.secondPostImageEnd);
 
       // S3_ENDPOINTがlocalhostの場合、ngrokを起動する
       await s3UseCase.checkEndpoint()
-      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, firstPostImageEndPath, secondPostImageEndPath, postImageCount)  
+      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, paths.firstPostImageEnd, paths.secondPostImageEnd, postImageCount)  
       
       if (!postResult) return
       return postResult.postText

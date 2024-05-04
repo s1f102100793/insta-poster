@@ -7,16 +7,17 @@ function outputPath(unitName: string, title: string, folder: string, suffix: str
 }
 
 export const path = {
-  screenshotOutput: (unitName: string, title: string, folderPrefix: string): string => 
-    outputPath(unitName, title, `${folderPrefix}${unitName}スクショ`, ".png"),
-  removeFrameImageOutput: (unitName: string, title: string, folderPrefix: string): string => 
-    outputPath(unitName, title, `${folderPrefix}${unitName}画像`, ".png"),
-  firstPostImageOutput: (unitName: string, title: string): string => 
-    outputPath(unitName, title, "完成", "_1.png"),
-  secondPostImageOutput: (unitName: string, title: string): string => 
-    outputPath(unitName, title, "完成", "_2.png"),
-  firstPostImageEnd: (unitName: string, title: string): string => 
-    `complete/${convertUnitNameToRomaji(unitName)}_${encodeURIComponent(title)}_1.png`,
-  secondPostImageEnd: (unitName: string, title: string): string =>
-    `complete/${convertUnitNameToRomaji(unitName)}_${encodeURIComponent(title)}_2.png`
+  getPaths: (unitName: string, title: string, folderPrefix: string) => {
+    const unitNameRomaji = convertUnitNameToRomaji(unitName);
+    const titleEncoded = encodeURIComponent(title);
+
+    return {
+      screenshotOutput: outputPath(unitName, title, `${folderPrefix}${unitName}スクショ`, ".png"),
+      removeFrameImageOutput: outputPath(unitName, title, `${folderPrefix}${unitName}画像`, ".png"),
+      firstPostImageOutput: outputPath(unitName, title, "完成", "_1.png"),
+      secondPostImageOutput: outputPath(unitName, title, "完成", "_2.png"),
+      firstPostImageEnd: `complete/${unitNameRomaji}_${titleEncoded}_1.png`,
+      secondPostImageEnd: `complete/${unitNameRomaji}_${titleEncoded}_2.png`
+    };
+  }
 };
