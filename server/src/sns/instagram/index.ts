@@ -1,9 +1,8 @@
 import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
-import { convertToInstagramId } from "../../service/memberName";
-import { TagPosition, getPositionCoordinates,  } from "../../service/TagPosition";
 import { Member } from "../../api";
+import { getUsertags } from "../../service/usertags";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
@@ -17,22 +16,7 @@ export const instagram = {
   async singlePostMakeContena(members: Member[], firstPostImageOutputPath: string, caption: string) {
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
-    const positionCounts: Record<TagPosition, number> = {
-      'bottom-left': 0,
-      'bottom-right': 0,
-      'top-right': 0,
-      'top-left': 0,
-      'bottom-center': 0
-    };
-
-    const userTags = members.map(member => {
-      if (member.memberName !== "" && member.tagPosition !== "") {
-        const instagramId = convertToInstagramId(member.memberName);
-        const position = getPositionCoordinates(member.tagPosition, positionCounts[member.tagPosition]);
-        positionCounts[member.tagPosition]++;
-        return instagramId ? { username: instagramId, ...position } : null;
-      }
-    }).filter(tag => tag !== null);
+    const userTags = getUsertags(members);
     const postData = {
       image_url: firstPostImageMediaUrl,
       caption,
@@ -52,40 +36,21 @@ export const instagram = {
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const secondPostImageMediaUrl = await s3.generatePresignedUrl(secondPostImageOutputPath);
-
-    const positionCounts: Record<TagPosition, number> = {
-      'bottom-left': 0,
-      'bottom-right': 0,
-      'top-right': 0,
-      'top-left': 0,
-      'bottom-center': 0
-    };
-
-    const userTags = members.map(member => {
-      if (member.memberName !== "" && member.tagPosition !== "") {
-        const instagramId = convertToInstagramId(member.memberName);
-        const position = getPositionCoordinates(member.tagPosition, positionCounts[member.tagPosition]);
-        positionCounts[member.tagPosition]++;
-        return instagramId ? { username: instagramId, ...position } : null;
-      }
-    }).filter(tag => tag !== null);
-
+    const userTags = getUsertags(members);
     const mediaUrls = [
       {
         media_url: firstPostImageMediaUrl,
-        type: 'IMAGE',
         user_tags: userTags
       },
       {
-        media_url: secondPostImageMediaUrl,
-        type: 'IMAGE'    
+        media_url: secondPostImageMediaUrl  
       }
     ];
 
     for (const media of mediaUrls) {
       const postData = {
         image_url: media.media_url,
-        media_type: media.type,
+        media_type: "IMAGE",
         is_carousel_item: true,
         user_tags: JSON.stringify(media.user_tags)
       };

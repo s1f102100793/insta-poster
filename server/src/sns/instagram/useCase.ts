@@ -13,7 +13,7 @@ export const instagramUseCase = {
       const contenaIds = await instagram.makeContena(membersData, firstPostImageEndPath, secondPostImageEndPath)
       const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText)
       const data = await instagram.contentPublish(groupContenaId, "CAROUSEL")
-      if(data === null) return
+      if (data === null) return
     } 
     return { postText: instagramPostText }
   }
