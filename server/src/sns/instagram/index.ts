@@ -14,6 +14,39 @@ const headers = {
 };
 
 export const instagram = {
+  async singlePostMakeContena(members: Member[], firstPostImageOutputPath: string, caption: string) {
+    const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
+    const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
+    const positionCounts: Record<TagPosition, number> = {
+      'bottom-left': 0,
+      'bottom-right': 0,
+      'top-right': 0,
+      'top-left': 0,
+      'bottom-center': 0
+    };
+
+    const userTags = members.map(member => {
+      if (member.memberName !== "" && member.tagPosition !== "") {
+        const instagramId = convertToInstagramId(member.memberName);
+        const position = getPositionCoordinates(member.tagPosition, positionCounts[member.tagPosition]);
+        positionCounts[member.tagPosition]++;
+        return instagramId ? { username: instagramId, ...position } : null;
+      }
+    }).filter(tag => tag !== null);
+    const postData = {
+      image_url: firstPostImageMediaUrl,
+      caption,
+      media_type: 'IMAGE',
+      user_tags: userTags
+    };
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(postData)
+    });
+    const data = await response.json() as { id: string };
+    return data.id;
+  },
   async makeContena(members: Member[], firstPostImageOutputPath: string, secondPostImageOutputPath: string) {
     let contenaIds = [];
 
@@ -56,28 +89,14 @@ export const instagram = {
         is_carousel_item: true,
         user_tags: JSON.stringify(media.user_tags)
       };
-
       const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
-
-      try {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(postData)
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json(); 
-          console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
-          return null;
-        }
-
-        const data = await response.json() as { id: string };
-        contenaIds.push(data.id);
-      } catch (error) {
-        console.error('Instagram APIのリクエスト中にエラーが発生しました:', error);
-        return null;
-      }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(postData)
+      });
+      const data = await response.json() as { id: string };
+      contenaIds.push(data.id);
     }
 
     return contenaIds;
@@ -98,36 +117,30 @@ export const instagram = {
       body: JSON.stringify(postData)
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
-      return null;
-    }
-
     const data = await response.json() as { id: string };
     return data.id;
   },
-  async contentPublish(groupContenaId: string) {
+  async contentPublish(groupContenaId: string, mediaType?: string) {
     // DB登録を待つため20秒待つ
     await sleep(20000);
-
-    const postData = {
-      media_type: 'CAROUSEL',
-      creation_id: groupContenaId
+    let postData;
+    if (!mediaType) {
+      postData = {
+        creation_id: groupContenaId
+      }
+    } else {
+      postData = {
+        media_type: mediaType,
+        creation_id: groupContenaId
+      }
     }
+    
     const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media_publish?`;
     const response = await fetch(url, {
       method: 'POST',
       headers,
       body: JSON.stringify(postData)
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Instagram APIのリクエストでエラーが発生しました。', errorData);
-      return null;
-    }
-    
     const data = await response.json();
     return data;
   }

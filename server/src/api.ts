@@ -34,12 +34,23 @@ export const api = new Elysia({ prefix: "/api" })
       const title = formData.get("title") as string
       const membersData = parseMembersData(formData);
       const unitName = getUnitName(membersData)
+      const postImageCount = formData.get("postImageCount") as string
+
       const firstPostImage = formData.get("firstPostImage") as File | null
-      const secondCompositeImage = formData.get("secondCompositeImage") as File | null
-      const screenshot = formData.get("screenshot") as File | null
-      if (!firstPostImage || !secondCompositeImage || !screenshot) {
-        return { message: "image1 and image2 are required" }
+      let secondCompositeImage: File | null = null;
+      let screenshot: File | null = null;
+      if (postImageCount === "一枚") {
+        if (!firstPostImage) {
+          return { message: "image1 is required" }
+        }
+      } else {
+        secondCompositeImage = formData.get("secondCompositeImage") as File | null
+        screenshot = formData.get("screenshot") as File | null
+        if (!firstPostImage || !secondCompositeImage || !screenshot) {
+          return { message: "image1 and image2 are required" }
+        }
       }
+      
       console.log("必須項目が入力されました。")
       
       const folderPrefix = getFolderPrefix(membersData);
@@ -55,7 +66,7 @@ export const api = new Elysia({ prefix: "/api" })
 
       // S3_ENDPOINTがlocalhostの場合、ngrokを起動する
       await s3UseCase.checkEndpoint()
-      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, firstPostImageEndPath, secondPostImageEndPath)  
+      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, firstPostImageEndPath, secondPostImageEndPath, postImageCount)  
       
       if (!postResult) return
       return postResult.postText

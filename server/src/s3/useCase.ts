@@ -4,9 +4,10 @@ import { ngrokUtils } from "../ngrok";
 import { sharpUtils } from "../sharp";
 
 export const s3UseCase = {
-  async uploadImages(firstPostImage: File, screenshot: File, secondPostImageOutputPath: string, removeFrameImageOutputPath: string, firstPostImageEndPath: string, secondPostImageEndPath: string) {
+  async uploadImages(firstPostImage: File, screenshot: File | null, secondPostImageOutputPath: string, removeFrameImageOutputPath: string, firstPostImageEndPath: string, secondPostImageEndPath: string) {
     const firstPostImageBuffer = Buffer.from(await firstPostImage.arrayBuffer());
     await s3.upload(firstPostImageEndPath, firstPostImageBuffer)
+    if (!screenshot) return
     const secondPostImageBuffer = await sharpUtils.mergeImages(removeFrameImageOutputPath, screenshot, secondPostImageOutputPath)
     await s3.upload(secondPostImageEndPath, secondPostImageBuffer)
   },

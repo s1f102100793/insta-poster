@@ -17,7 +17,7 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
-type PostImageCount = "一枚" | "二枚";
+type PostImageCount = "一枚" | "二枚" | "";
 
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
@@ -29,7 +29,7 @@ function App() {
   const [members, setMembers] = useState<Member[]>([
     { memberName: "てつや", tagPosition: "中央下" },
   ]);
-  const [title, setTitle] = useState("ウインク");
+  const [title, setTitle] = useState("リサイタルズ ぴあアリーナVer.");
   const [postImageCount, setPostImageCount] = useState<PostImageCount>("一枚");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -49,6 +49,7 @@ function App() {
     if (
       !youtubeUrl ||
       !title ||
+      !postImageCount ||
       members.some((member) => !member.memberName || !member.tagPosition)
     ) {
       alert("必須項目が入力されていません");
@@ -77,7 +78,7 @@ function App() {
     const formData = new FormData();
 
     if (canAppendSingleImage) {
-      formData.append("postImage", firstPostImage);
+      formData.append("firstPostImage", firstPostImage);
     } else if (canAppendTripleImages) {
       formData.append("firstPostImage", firstPostImage);
       formData.append("secondCompositeImage", secondCompositeImage);
@@ -217,6 +218,7 @@ function App() {
               value={postImageCount}
               options={["一枚", "二枚"]}
               onChange={setPostImageCount}
+              placeholder="投稿画像の枚数を選択"
             />
             <TextInput
               value={title}
