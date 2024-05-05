@@ -2,7 +2,7 @@ import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
 import { Member } from "../../api";
-import { getUsertags } from "../../service/usertags";
+import { getUsertags } from "../../service/userTags";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
