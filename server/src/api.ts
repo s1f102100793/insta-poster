@@ -28,10 +28,10 @@ export const api = new Elysia({ prefix: "/api" })
   })
   .group("/posts", (router) =>
     router.post("/", async ({ request }) => {
-      console.log("スタートしました。")
       const formData = await request.formData();
       const youtubeUrl = formData.get("youtubeUrl") as string
       const title = formData.get("title") as string
+      const additionalHashTag = formData.get("additionalHashTag") as string | null
       const membersData = parseMembersData(formData);
       const unitName = getUnitName(membersData)
       const postImageCount = formData.get("postImageCount") as string
@@ -51,8 +51,6 @@ export const api = new Elysia({ prefix: "/api" })
         }
       }
       
-      console.log("必須項目が入力されました。")
-      
       const folderPrefix = getFolderPrefix(membersData);
       const paths = path.getPaths(unitName, title, folderPrefix);
       await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, paths.firstPostImageOutput, paths.screenshotOutput, paths.removeFrameImageOutput);
@@ -60,7 +58,7 @@ export const api = new Elysia({ prefix: "/api" })
 
       // S3_ENDPOINTがlocalhostの場合、ngrokを起動する
       await s3UseCase.checkEndpoint()
-      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, paths.firstPostImageEnd, paths.secondPostImageEnd, postImageCount)  
+      const postResult = await instagramUseCase.makePost(membersData, title, youtubeUrl, additionalHashTag, paths.firstPostImageEnd, paths.secondPostImageEnd, postImageCount)  
       
       if (!postResult) return
       return postResult.postText

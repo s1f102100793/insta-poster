@@ -25,12 +25,13 @@ function App() {
     null,
   );
   const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [youtubeUrl, setYoutubeUrl] = useState("https://www.youtube.com/watch?v=TZSIb0EYTHg&ab_channel=%E6%9D%B1%E6%B5%B7%E3%82%AA%E3%83%B3%E3%82%A8%E3%82%A2%E3%81%AE%E6%8E%A7%E3%81%88%E5%AE%A4");
+  const [youtubeUrl, setYoutubeUrl] = useState("");
   const [members, setMembers] = useState<Member[]>([
-    { memberName: "てつや", tagPosition: "中央下" },
+    { memberName: "", tagPosition: "" },
   ]);
-  const [title, setTitle] = useState("リサイタルズ ぴあアリーナVer.");
-  const [postImageCount, setPostImageCount] = useState<PostImageCount>("一枚");
+  const [title, setTitle] = useState("");
+  const [additionalHashTag, setAdditionalHashTag] = useState("");
+  const [postImageCount, setPostImageCount] = useState<PostImageCount>("");
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -83,6 +84,9 @@ function App() {
       formData.append("firstPostImage", firstPostImage);
       formData.append("secondCompositeImage", secondCompositeImage);
       formData.append("screenshot", screenshot);
+    }
+    if (additionalHashTag !== "") {
+      formData.append("additionalHashTag", additionalHashTag);
     }
 
     members.forEach((member, index) => {
@@ -224,6 +228,11 @@ function App() {
               value={title}
               setValue={setTitle}
               placeholder="タイトルを入力"
+            />
+            <TextInput
+              value={additionalHashTag}
+              setValue={setAdditionalHashTag}
+              placeholder="追加のハッシュタグがあれば入力"
             />
             <Button color="bg-blue-500" text="作成する" onClick={postSns} />
           </div>

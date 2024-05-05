@@ -3,21 +3,21 @@ import { getUnitName } from "../../service/memberName";
 import { youtube } from "../youtube";
 
 export const instagramTemplate = {
-  async post(membersData:Member[], title:string, youtubeUrl:string) {
-    const videoId = youtube.getVideoId(youtubeUrl) as string
-    const youtubeTitle = await youtube.getVideoTitle(videoId)
+  async post(membersData: Member[], title: string, youtubeUrl: string, additionalHashTag: string | null) {
+    const videoId = youtube.getVideoId(youtubeUrl) as string;
+    const youtubeTitle = await youtube.getVideoTitle(videoId);
     const memberNameHashtags = membersData.map(member =>
       `#東海オンエア${member.memberName}`).join(' ');
     const unitName = getUnitName(membersData);
     const unitNameHashtag = membersData.length === 2 || membersData.length === 3 ? `#${unitName}` : '';
 
-    return `${memberNameHashtags}
+    let postText = 
+`${memberNameHashtags}
 【${title}】
 
 Source: 
 ${youtubeTitle}
 ${youtubeUrl}
-
 
 #東海いらすとや
 #東海オンエア描いちゃった
@@ -32,5 +32,11 @@ ${youtubeUrl}
 #東海オンエアファンと繋がりたい
 #東海オンエア好きな人と繋がりたい
 ${unitNameHashtag}`;
+
+    if (additionalHashTag) {
+      postText += `#${additionalHashTag}`;
+    }
+
+    return postText;
   }
 };

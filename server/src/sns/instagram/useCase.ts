@@ -3,8 +3,8 @@ import { Member } from "../../api";
 import { instagramTemplate } from "./template";
 
 export const instagramUseCase = {
-  async makePost(membersData: Member[], title: string, youtubeUrl: string, firstPostImageEndPath: string, secondPostImageEndPath: string, postImageCount: string) {
-    const instagramPostText = await instagramTemplate.post(membersData, title, youtubeUrl)
+  async makePost(membersData: Member[], title: string, youtubeUrl: string, additionalHashTag:string | null, firstPostImageEndPath: string, secondPostImageEndPath: string, postImageCount: string) {
+    const instagramPostText = await instagramTemplate.post(membersData, title, youtubeUrl, additionalHashTag)
     if (postImageCount === "一枚") {
       const contenaId = await instagram.singlePostMakeContena(membersData, firstPostImageEndPath, instagramPostText)
       const data = await instagram.contentPublish(contenaId)
