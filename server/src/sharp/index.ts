@@ -8,28 +8,24 @@ interface sharpMetadata {
 }
 
 export const sharpUtils = {
-  async saveImage(image: File, outputPath: string) {
+  async saveImage(imageBuffer: ArrayBuffer | Buffer, outputPath: string) {
     const dir = path.dirname(outputPath);
     await ensureDir(dir);
-    const imageBuffer = await image.arrayBuffer();
     await sharp(imageBuffer).toFile(outputPath);
   },
-  async removeFrame(image: File, outputPath: string) {
-    const dir = path.dirname(outputPath);
-    await ensureDir(dir);
-    const imageBuffer = await image.arrayBuffer();
+  async removeFrame(imageBuffer: ArrayBuffer) {
     const sharpImage = sharp(imageBuffer);
     const metadata = await sharpImage.metadata() as sharpMetadata;
     const frameWidth = 140;
     const newSideLength = metadata.width - frameWidth * 2;
 
-    const trimmedImage = sharpImage.extract({
+    const trimmedImageBuffer = await sharpImage.extract({
       left: frameWidth,
       top: frameWidth,
       width: newSideLength,
       height: newSideLength
-    });
-    await trimmedImage.toFile(outputPath);     
+    }).toBuffer();
+    return trimmedImageBuffer;
   },
   async mergeImages(image1Path: string, screenshot: File, outputPath: string) {
     const screenshotBuffer = await screenshot.arrayBuffer();
