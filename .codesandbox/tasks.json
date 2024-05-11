@@ -6,11 +6,6 @@
     }
   ],
   "tasks": {
-    "db": {
-      "name": "DB Push",
-      "command": "cd server && bun run db:push & cd ..",
-      "runAtStart": false
-    },
     "dev": {
       "name": "Dev",
       "command": "bun dev",
