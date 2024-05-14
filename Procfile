@@ -1,1 +1,1 @@
-web: bun start --prefix server
+web: cd server && bun run start
