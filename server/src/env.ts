@@ -2,6 +2,7 @@ import { object, coerce, string } from "zod";
 
 const EnvSchema = object({
   PORT: coerce.number().default(8080),
+  CORS_ORIGIN: string(),
   PUBLIC_DIR: string(),
   YOUTUBE_DATA_API_KEY: string(),
   OUTPUT_PATH: string().optional(),

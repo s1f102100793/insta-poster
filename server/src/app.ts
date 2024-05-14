@@ -6,7 +6,9 @@ import { env } from "./env";
 import { api } from "./api";
 
 const app = new Elysia()
-  .use(cors())
+  .use(cors({
+    origin: env.CORS_ORIGIN,
+  }))
   .use(
     swagger({
       documentation: {
