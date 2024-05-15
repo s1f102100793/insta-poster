@@ -6,7 +6,7 @@
     "start": "bun src/index.ts",
     "serve": "bun dist/index.js",
     "dev": "bun --hot src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun --minify",
+    "build": "mkdir -p dist && bun build src/index.ts --outdir dist --target bun --minify",
     "format:check": "biome format .",
     "format:write": "biome format --write ."
   },
