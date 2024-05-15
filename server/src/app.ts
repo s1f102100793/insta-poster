@@ -1,6 +1,5 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
-import staticPlugin from "@elysiajs/static";
 import { swagger } from "@elysiajs/swagger";
 import { env } from "./env";
 import { api } from "./api";
@@ -28,7 +27,6 @@ const app = new Elysia()
   .get("/", ({ set }) => {
     set.redirect = "/index.html";
   })
-  .use(staticPlugin({ prefix: "/", assets: env.PUBLIC_DIR }))
   .use(api);
 
 export default app;
