@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "heroku-postbuild": "cd server && bun install && bun run build",
     "format:check": "turbo format:check",
     "format:write": "turbo format:write"
   },
