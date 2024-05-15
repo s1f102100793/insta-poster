@@ -1,1 +1,1 @@
-web: cd server && bun run serve
+web: cd server && bun run build && bun run serve
