@@ -5,9 +5,14 @@ import { swagger } from "@elysiajs/swagger";
 import { env } from "./env";
 import { api } from "./api";
 
+console.log('CORS_ORIGIN:', env.CORS_ORIGIN);
+
 const app = new Elysia()
   .use(cors({
     origin: env.CORS_ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   }))
   .use(
     swagger({
