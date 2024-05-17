@@ -167,6 +167,8 @@ export const getFolderPrefix = (membersData: Member[]): string => {
     return "二人組/";
   } else if (numberOfMembers === 3) {
     return "三人組/";
+  } else if (numberOfMembers >= 4) {
+    return "4人以上/";
   } else {
     return "";
   }
