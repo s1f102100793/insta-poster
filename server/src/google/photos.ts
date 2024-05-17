@@ -131,24 +131,11 @@ export const googlePhotosUtils = {
     const relativePath = outputPath.startsWith(basePath) 
       ? outputPath.slice(basePath.length + 1)
       : outputPath;
-
     const parts = relativePath.split('/');
-    const folderPrefix = parts.length > 1 ? parts[0] : '';
     const baseName = parts[parts.length - 1];
-    const unitName = baseName.split('_')[0];
     const suffix = baseName.substring(baseName.lastIndexOf('_') + 1);
 
-    let newFileName = '';
-
-    if (folderPrefix === '二人組' || folderPrefix === '三人組') {
-      newFileName = `${unitName}${suffix}`;
-    } else if (folderPrefix === '完成') {
-      newFileName = `完成${suffix}`;
-    } else {
-      newFileName = folderPrefix ? `${folderPrefix}${unitName}${suffix}` : `${unitName}${suffix}`;
-    }
-
-    return newFileName;
+    return suffix;
   },
   generateAlbumTitle(outputPath: string): string {
     const basePath = env.OUTPUT_PATH ?? '../output';
