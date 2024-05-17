@@ -1,20 +1,45 @@
 import fetch from 'node-fetch';
 import { env } from '../env';
 
-const accessToken = env.GOOGLE_PHOTOS_ACCESS_TOKEN;
 const albumsUrl = `https://photoslibrary.googleapis.com/v1/albums`;
-const basicHeaders = {
-  'Authorization': `Bearer ${accessToken}`,
-  'Content-Type': 'application/json'
-};
 
 export const googlePhotosUtils = {
+  async getAccessToken(): Promise<string> {
+    const refreshToken = env.GOOGLE_PHOTOS_REFRESH_TOKEN;
+    const clientId = env.GOOGLE_PHOTOS_CLIENT_ID;
+    const clientSecret = env.GOOGLE_PHOTOS_CLIENT_SECRET;
+    const tokenUrl = `https://oauth2.googleapis.com/token`;
+
+    const response = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: refreshToken,
+        grant_type: 'refresh_token'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to refresh access token: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.access_token;
+  },
   async getAlbumByName(albumTitle: string): Promise<string | null> {
+    const accessToken = await googlePhotosUtils.getAccessToken();
+    const basicHeaders = {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    };
     const listAlbumsResponse = await fetch(albumsUrl, {
       method: 'GET',
       headers: basicHeaders
     });
-    console.log('listAlbumsResponse', listAlbumsResponse);
 
     if (!listAlbumsResponse.ok) {
       throw new Error(`Failed to list albums: ${listAlbumsResponse.statusText}`);
@@ -27,10 +52,14 @@ export const googlePhotosUtils = {
 
   async createAlbumIfNotExists(albumTitle: string): Promise<string> {
     let albumId = await googlePhotosUtils.getAlbumByName(albumTitle);
-    console.log('albumId', albumId);
     if (albumId) {
       return albumId;
     }
+    const accessToken = await googlePhotosUtils.getAccessToken();
+    const basicHeaders = {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    };
     const createAlbumResponse = await fetch(albumsUrl, {
       method: 'POST',
       headers: basicHeaders,
@@ -48,14 +77,19 @@ export const googlePhotosUtils = {
   },
 
   async uploadImage(imageBuffer: ArrayBuffer | Buffer, outputPath: string, albumId: string) {
-    const newFileName = googlePhotosUtils.generateGooglePhotosFileName(outputPath);
+    const newFileName = encodeURIComponent(googlePhotosUtils.generateGooglePhotosFileName(outputPath));
     const uploadUrl = `https://photoslibrary.googleapis.com/v1/uploads`;
     const createMediaItemUrl = `https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate`;
+    const accessToken = await googlePhotosUtils.getAccessToken();
     const uploadHeaders = {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/octet-stream',
       'X-Goog-Upload-File-Name': newFileName,
       'X-Goog-Upload-Protocol': 'raw'
+    };
+    const basicHeaders = {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
     };
 
     const uploadResponse = await fetch(uploadUrl, {
@@ -92,7 +126,6 @@ export const googlePhotosUtils = {
     const createMediaItemResult = await createMediaItemResponse.json();
     return createMediaItemResult;
   },
-// 残りここを変更する
   generateGooglePhotosFileName(outputPath: string): string {
     const basePath = env.OUTPUT_PATH ?? '../output';
     const relativePath = outputPath.startsWith(basePath) 
