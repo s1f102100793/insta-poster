@@ -5,6 +5,7 @@ const EnvSchema = object({
   CORS_ORIGIN: string(),
   PUBLIC_DIR: string(),
   YOUTUBE_DATA_API_KEY: string(),
+  GOOGLE_PHOTOS_ACCESS_TOKEN: string(),
   OUTPUT_PATH: string().optional(),
   INSTAGRAM_BUSINESS_ID: string(),
   INSTAGRAM_ACCESS_TOKEN: string(),
