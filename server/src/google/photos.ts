@@ -1,7 +1,11 @@
-import fetch from 'node-fetch';
 import { env } from '../env';
 
 const albumsUrl = `https://photoslibrary.googleapis.com/v1/albums`;
+
+interface Album {
+  title: string;
+  id: string;
+}
 
 export const googlePhotosUtils = {
   async getAccessToken(): Promise<string> {
@@ -27,7 +31,7 @@ export const googlePhotosUtils = {
       throw new Error(`Failed to refresh access token: ${response.statusText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { access_token: string };
     return data.access_token;
   },
   async getAlbumByName(albumTitle: string): Promise<string | null> {
@@ -45,7 +49,7 @@ export const googlePhotosUtils = {
       throw new Error(`Failed to list albums: ${listAlbumsResponse.statusText}`);
     }
 
-    const listAlbumsResult = await listAlbumsResponse.json();
+    const listAlbumsResult = await listAlbumsResponse.json() as { albums: Album[] };
     const album = listAlbumsResult.albums.find((album: any) => album.title === albumTitle);
     return album ? album.id : null;
   },
@@ -72,7 +76,7 @@ export const googlePhotosUtils = {
       throw new Error(`Failed to create album: ${createAlbumResponse.statusText}`);
     }
 
-    const createAlbumResult = await createAlbumResponse.json();
+    const createAlbumResult = await createAlbumResponse.json() as { id: string };
     return createAlbumResult.id;
   },
 
