@@ -55,9 +55,7 @@ export const api = new Elysia({ prefix: "/api" })
       
       const folderPrefix = getFolderPrefix(membersData);
       const paths = path.getPaths(unitName, title, folderPrefix);
-      console.log("パスを取得しました。")
-      await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, paths.firstPostImageOutput, paths.screenshotOutput, paths.removeFrameImageOutput)
-      .catch((error) => {throw error;});
+      await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, paths.firstPostImageOutput, paths.screenshotOutput, paths.removeFrameImageOutput);
       await s3UseCase.uploadImages(firstPostImage, screenshot, paths.secondPostImageOutput, paths.removeFrameImageOutput, paths.firstPostImageEnd, paths.secondPostImageEnd);
 
       // S3_ENDPOINTがlocalhostの場合、ngrokを起動する
