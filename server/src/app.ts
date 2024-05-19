@@ -24,6 +24,9 @@ const app = new Elysia()
       exclude: ["/"],
     }),
   )
+  .onError(({ code, error, }) => {
+    return error.message;
+  })
   .get("/", ({ set }) => {
     set.redirect = "/index.html";
   })

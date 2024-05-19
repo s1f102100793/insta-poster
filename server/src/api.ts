@@ -27,7 +27,7 @@ export const api = new Elysia({ prefix: "/api" })
     return router
   })
   .group("/posts", (router) =>
-    router.post("/", async ({ request }) => {
+    router.post("/", async ({ request, set }) => {
       const formData = await request.formData();
       const youtubeUrl = formData.get("youtubeUrl") as string
       const title = formData.get("title") as string
@@ -41,19 +41,22 @@ export const api = new Elysia({ prefix: "/api" })
       let screenshot: File | null = null;
       if (postImageCount === "一枚") {
         if (!firstPostImage) {
-          return { message: "image1 is required" }
+          set.status = 400
+          throw new Error('image1 is required')
         }
       } else {
         secondCompositeImage = formData.get("secondCompositeImage") as File | null
         screenshot = formData.get("screenshot") as File | null
         if (!firstPostImage || !secondCompositeImage || !screenshot) {
-          return { message: "image1 and image2 are required" }
+          set.status = 400
+          throw new Error('image1, image2, screenshot are required')
         }
       }
       
       const folderPrefix = getFolderPrefix(membersData);
       const paths = path.getPaths(unitName, title, folderPrefix);
-      await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, paths.firstPostImageOutput, paths.screenshotOutput, paths.removeFrameImageOutput);
+      await sharpUseCase.savePostImage(firstPostImage, screenshot, secondCompositeImage, paths.firstPostImageOutput, paths.screenshotOutput, paths.removeFrameImageOutput)
+      .catch((error) => {throw error;});
       await s3UseCase.uploadImages(firstPostImage, screenshot, paths.secondPostImageOutput, paths.removeFrameImageOutput, paths.firstPostImageEnd, paths.secondPostImageEnd);
 
       // S3_ENDPOINTがlocalhostの場合、ngrokを起動する
