@@ -11,6 +11,7 @@ const EnvSchema = object({
   OUTPUT_PATH: string().optional(),
   INSTAGRAM_BUSINESS_ID: string(),
   INSTAGRAM_ACCESS_TOKEN: string(),
+  INSTAGRAM_USER_NAME: string(),
   S3_ENDPOINT: string(),
   S3_BUCKET: string(),
   S3_ACCESS_KEY: string(),

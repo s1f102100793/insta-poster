@@ -1,8 +1,9 @@
-import { Member } from "../api";
-import { TagPosition, getPositionCoordinates } from "./TagPosition";
-import { convertToInstagramId } from "./memberName";
+import { Member } from "../../api";
+import { env } from "../../env";
+import { TagPosition, getPositionCoordinates } from "../../service/TagPosition";
+import { convertToInstagramId } from "../../service/memberName";
 
-export const getUsertags = (members: Member[]) => {
+export const getInstagramUserTags = (members: Member[]) => {
   const positionCounts: Record<TagPosition, number> = {
     'bottom-left': 0,
     'bottom-right': 0,
@@ -11,7 +12,7 @@ export const getUsertags = (members: Member[]) => {
     'bottom-center': 0
   };
 
-  const userTags = members.map(member => {
+  const memberTags = members.map(member => {
     if (member.memberName !== "" && member.tagPosition !== "") {
       const instagramId = convertToInstagramId(member.memberName);
       const position = getPositionCoordinates(member.tagPosition, positionCounts[member.tagPosition]);
@@ -19,5 +20,7 @@ export const getUsertags = (members: Member[]) => {
       return instagramId ? { username: instagramId, ...position } : null;
     }
   }).filter(tag => tag !== null);
-  return userTags;
+  const myTag = { username: env.INSTAGRAM_USER_NAME, x: 0.75, y: 0.89 };
+  memberTags.push(myTag);
+  return memberTags;
 };

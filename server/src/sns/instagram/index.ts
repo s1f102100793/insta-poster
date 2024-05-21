@@ -2,7 +2,7 @@ import { sleep } from "bun";
 import { env } from "../../env";
 import { s3 } from "../../s3";
 import { Member } from "../../api";
-import { getUsertags } from "../../service/userTags";
+import { getInstagramUserTags } from "./userTags";
 
 const instaBusinessId = env.INSTAGRAM_BUSINESS_ID;
 const instaAccessToken = env.INSTAGRAM_ACCESS_TOKEN;
@@ -16,7 +16,7 @@ export const instagram = {
   async singlePostMakeContena(members: Member[], firstPostImageOutputPath: string, caption: string) {
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const url = `https://graph.facebook.com/v19.0/${instaBusinessId}/media?`;
-    const userTags = getUsertags(members);
+    const userTags = getInstagramUserTags(members);
     const postData = {
       image_url: firstPostImageMediaUrl,
       caption,
@@ -36,7 +36,7 @@ export const instagram = {
 
     const firstPostImageMediaUrl = await s3.generatePresignedUrl(firstPostImageOutputPath);
     const secondPostImageMediaUrl = await s3.generatePresignedUrl(secondPostImageOutputPath);
-    const userTags = getUsertags(members);
+    const userTags = getInstagramUserTags(members);
     const mediaUrls = [
       {
         media_url: firstPostImageMediaUrl,
