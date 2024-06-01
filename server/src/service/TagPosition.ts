@@ -1,3 +1,5 @@
+import { match, P } from 'ts-pattern';
+
 export type TagPosition = 'bottom-left' | 'bottom-right' | 'top-right' | 'top-left' | 'bottom-center';
 
 export const getPositionCoordinates = (position: TagPosition, index: number): { x: number, y: number } => {
@@ -9,16 +11,12 @@ export const getPositionCoordinates = (position: TagPosition, index: number): { 
     'bottom-center': { x: 0.5, y: 0.75 }
   };
 
-  const offset = 0.05 * index; 
-  let adjustedY;
+  const offset = 0.05 * index;
 
-  if (position.startsWith('bottom')) {
-    adjustedY = basePosition[position].y - offset;
-  } else if (position.startsWith('top')) {
-    adjustedY = basePosition[position].y + offset;
-  } else {
-    adjustedY = basePosition[position].y;
-  }
+  const adjustedY = match(position)
+    .with(P.string.startsWith('bottom'), () => basePosition[position].y - offset)
+    .with(P.string.startsWith('top'), () => basePosition[position].y + offset)
+    .otherwise(() => basePosition[position].y);
 
   return {
     x: basePosition[position].x,
