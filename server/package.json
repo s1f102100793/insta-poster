@@ -28,6 +28,7 @@
     "fs": "^0.0.1-security",
     "playwright": "1.41.0",
     "sharp": "^0.33.3",
+    "ts-pattern": "^5.1.2",
     "zod": "^3.22.2"
   },
   "exports": {
