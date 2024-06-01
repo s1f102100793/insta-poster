@@ -1,3 +1,4 @@
+import { P, match } from "ts-pattern";
 import { Member } from "../api";
 import { TagPosition } from "./TagPosition";
 
@@ -28,23 +29,26 @@ export const convertToInstagramId = (memberName: MemberName): string | undefined
 export const parseMembersData = (formData: FormData): Member[] => {
   const membersData: Member[] = [];
   for (let key of formData.keys()) {
-      const match = key.match(/members\[(\d+)\]\[(memberName|tagPosition)\]/);
-      if (match) {
-          const index = parseInt(match[1], 10);
-          const property = match[2] as keyof Member;
-          if (!membersData[index]) {
-              membersData[index] = { memberName: "", tagPosition: "" };
-          }
-          const value = formData.get(key);
-          if (typeof value === "string" && property === "memberName") {
-              membersData[index].memberName = value as MemberName;
-          } else if (typeof value === "string" && property === "tagPosition") {
-              membersData[index].tagPosition = value as TagPosition;
-          } else {
-              console.error("Expected string, received:", value);
-              membersData[index][property] = "";
-          }
+    const matchResult = key.match(/members\[(\d+)\]\[(memberName|tagPosition)\]/);
+    if (matchResult) {
+      const index = parseInt(matchResult[1], 10);
+      const property = matchResult[2] as keyof Member;
+      if (!membersData[index]) {
+        membersData[index] = { memberName: "" as MemberName, tagPosition: "" as TagPosition };
       }
+      const value = formData.get(key);
+      match([value, property] as [unknown, keyof Member])
+        .with([P.string, 'memberName'], ([value]) => {
+          membersData[index].memberName = value as MemberName;
+        })
+        .with([P.string, 'tagPosition'], ([value]) => {
+          membersData[index].tagPosition = value as TagPosition;
+        })
+        .otherwise(([value]) => {
+          console.error("Expected string, received:", value);
+          membersData[index][property] = "" as any;
+        });
+    }
   }
   return membersData;
 }
@@ -126,50 +130,42 @@ const unitNameToRomaji: Record<string, string> = {
 };
 
 
-export const getUnitName = (members: Member[]): string => {
-  if (members.length === 1) {
-    return members[0].memberName;
-  } else if (members.length >= 4) {
-    return "4人以上";
-  }
-  const order: Record<MemberName, number> = {
-    てつや: 1,
-    しばゆー: 2,
-    りょう: 3,
-    としみつ: 4,
-    ゆめまる: 5,
-    虫眼鏡: 6
-  };
+const order: Record<MemberName, number> = {
+  てつや: 1,
+  しばゆー: 2,
+  りょう: 3,
+  としみつ: 4,
+  ゆめまる: 5,
+  虫眼鏡: 6
+};
 
-  const memberNames = members
-    .map(member => member.memberName)
-    .sort((a, b) => (order[a as MemberName] - order[b as MemberName]));
-  const key = memberNames.join('_');
-  return unitNames[key] || memberNames.join('・');
+export const getUnitName = (members: Member[]): string => {
+  return match(members.length)
+    .with(1, () => members[0].memberName)
+    .with(4, 5, 6, () => "4人以上")
+    .otherwise(() => {
+      const memberNames = members
+        .map(member => member.memberName)
+        .sort((a, b) => order[a as MemberName] - order[b as MemberName]);
+      const key = memberNames.join('_');
+      return unitNames[key] || memberNames.join('・');
+    });
 }
 
 export const convertUnitNameToRomaji = (unitName: string): string | undefined => {
-  if (unitNameToRomaji[unitName]) {
-    return unitNameToRomaji[unitName];
-  } else if (memberNameToRomaji[unitName as MemberName]) {
-    return memberNameToRomaji[unitName as MemberName];
-  } else if (unitName === "4人以上") {
-    return "four_or_more";
-  } else {
-    return undefined;
-  }
+  return match(unitName)
+    .with(P.when(name => unitNameToRomaji[name] !== undefined), name => unitNameToRomaji[name])
+    .with(P.when(name => memberNameToRomaji[name as MemberName] !== undefined), name => memberNameToRomaji[name as MemberName])
+    .with("4人以上", () => "four_or_more")
+    .otherwise(() => undefined);
 };
 
 
 export const getFolderPrefix = (membersData: Member[]): string => {
   const numberOfMembers = membersData.length;
-  if (numberOfMembers === 2) {
-    return "二人組/";
-  } else if (numberOfMembers === 3) {
-    return "三人組/";
-  } else if (numberOfMembers >= 4) {
-    return "4人以上/";
-  } else {
-    return "";
-  }
+  return match(numberOfMembers)
+    .with(2, () => "二人組/")
+    .with(3, () => "三人組/")
+    .with(4, 5, 6, () => "4人以上/")
+    .otherwise(() => "");
 }
