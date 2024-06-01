@@ -1,3 +1,4 @@
+import { P, match } from 'ts-pattern';
 import { env } from '../env';
 
 const albumsUrl = `https://photoslibrary.googleapis.com/v1/albums`;
@@ -150,11 +151,10 @@ export const googlePhotosUtils = {
     const parts = relativePath.split('/');
     let folderPrefix = parts.length > 1 ? parts[0] : '';
 
-    if (folderPrefix.endsWith('画像')) {
-      folderPrefix = folderPrefix.slice(0, -2);
-    } else if (folderPrefix.endsWith('スクショ')) {
-      folderPrefix = folderPrefix.slice(0, -4);
-    }
+    folderPrefix = match(folderPrefix)
+    .with(P.string.endsWith('画像'), (prefix) => prefix.slice(0, -2))
+    .with(P.string.endsWith('スクショ'), (prefix) => prefix.slice(0, -4))
+    .otherwise((prefix) => prefix);
 
     return folderPrefix;
   }
