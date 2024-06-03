@@ -39,18 +39,24 @@ export const api = new Elysia({ prefix: "/api" })
       const firstPostImage = formData.get("firstPostImage") as File | null
       let secondCompositeImage: File | null = null;
       let screenshot: File | null = null;
-      if (postImageCount === "一枚") {
-        if (!firstPostImage) {
+      switch (postImageCount) {
+        case "一枚":
+          if (!firstPostImage) {
+            set.status = 400
+            throw new Error('image1 is required')
+          }
+          break;
+        case "二枚":
+          secondCompositeImage = formData.get("secondCompositeImage") as File | null
+          screenshot = formData.get("screenshot") as File | null
+          if (!firstPostImage || !secondCompositeImage || !screenshot) {
+            set.status = 400
+            throw new Error('image1, image2, screenshot are required')
+          }
+          break;
+        default:
           set.status = 400
-          throw new Error('image1 is required')
-        }
-      } else {
-        secondCompositeImage = formData.get("secondCompositeImage") as File | null
-        screenshot = formData.get("screenshot") as File | null
-        if (!firstPostImage || !secondCompositeImage || !screenshot) {
-          set.status = 400
-          throw new Error('image1, image2, screenshot are required')
-        }
+          throw new Error('postImageCount is invalid')
       }
       
       const folderPrefix = getFolderPrefix(membersData);
