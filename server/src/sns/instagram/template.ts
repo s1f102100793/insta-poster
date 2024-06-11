@@ -3,16 +3,24 @@ import { getUnitName } from "../../service/memberName";
 import { youtube } from "../youtube";
 
 export const instagramTemplate = {
-  async post(membersData: Member[], title: string, youtubeUrl: string, additionalHashTag: string | null) {
+  async post(
+    membersData: Member[],
+    title: string,
+    youtubeUrl: string,
+    additionalHashTag: string | null,
+  ) {
     const videoId = youtube.getVideoId(youtubeUrl) as string;
     const youtubeTitle = await youtube.getVideoTitle(videoId);
-    const memberNameHashtags = membersData.map(member =>
-      `#東海オンエア${member.memberName}`).join(' ');
+    const memberNameHashtags = membersData
+      .map((member) => `#東海オンエア${member.memberName}`)
+      .join(" ");
     const unitName = getUnitName(membersData);
-    const unitNameHashtag = membersData.length === 2 || membersData.length === 3 ? `#${unitName}` : '';
+    const unitNameHashtag =
+      membersData.length === 2 || membersData.length === 3
+        ? `#${unitName}`
+        : "";
 
-    let postText = 
-`${memberNameHashtags}
+    let postText = `${memberNameHashtags}
 【${title}】
 
 Source: 
@@ -38,5 +46,5 @@ ${unitNameHashtag}`;
     }
 
     return postText;
-  }
+  },
 };

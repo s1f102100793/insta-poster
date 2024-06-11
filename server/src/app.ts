@@ -5,12 +5,14 @@ import { env } from "./env";
 import { api } from "./api";
 
 const app = new Elysia()
-  .use(cors({
-    origin: env.CORS_ORIGIN,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }))
+  .use(
+    cors({
+      origin: env.CORS_ORIGIN,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+    }),
+  )
   .use(
     swagger({
       documentation: {
@@ -24,7 +26,7 @@ const app = new Elysia()
       exclude: ["/"],
     }),
   )
-  .onError(({ code, error, }) => {
+  .onError(({ code, error }) => {
     return error.message;
   })
   .get("/", ({ set }) => {

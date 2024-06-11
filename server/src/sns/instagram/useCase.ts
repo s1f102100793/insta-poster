@@ -11,20 +11,36 @@ export const instagramUseCase = {
     additionalHashTag: string | null,
     firstPostImageEndPath: string,
     secondPostImageEndPath: string,
-    postImageCount: string
+    postImageCount: string,
   ) {
-    const instagramPostText = await instagramTemplate.post(membersData, title, youtubeUrl, additionalHashTag);
+    const instagramPostText = await instagramTemplate.post(
+      membersData,
+      title,
+      youtubeUrl,
+      additionalHashTag,
+    );
 
     return match(postImageCount)
       .with("一枚", async () => {
-        const contenaId = await instagram.singlePostMakeContena(membersData, firstPostImageEndPath, instagramPostText);
+        const contenaId = await instagram.singlePostMakeContena(
+          membersData,
+          firstPostImageEndPath,
+          instagramPostText,
+        );
         const data = await instagram.contentPublish(contenaId);
         if (data === null) return;
         return { postText: instagramPostText };
       })
       .with("二枚", async () => {
-        const contenaIds = await instagram.makeContena(membersData, firstPostImageEndPath, secondPostImageEndPath);
-        const groupContenaId = await instagram.makeGroupContena(contenaIds, instagramPostText);
+        const contenaIds = await instagram.makeContena(
+          membersData,
+          firstPostImageEndPath,
+          secondPostImageEndPath,
+        );
+        const groupContenaId = await instagram.makeGroupContena(
+          contenaIds,
+          instagramPostText,
+        );
         const data = await instagram.contentPublish(groupContenaId, "CAROUSEL");
         if (data === null) return;
         return { postText: instagramPostText };
@@ -32,5 +48,5 @@ export const instagramUseCase = {
       .otherwise(() => {
         throw new Error(`Unsupported post image count: ${postImageCount}`);
       });
-  }
+  },
 };
