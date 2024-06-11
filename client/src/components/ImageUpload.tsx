@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction } from "react";
 
 type ImageUploadProps = {
   image: File | null;
@@ -7,7 +7,12 @@ type ImageUploadProps = {
   id: string;
 };
 
-export const ImageUpload = ({ image, setImage, label, id }: ImageUploadProps) => {
+export const ImageUpload = ({
+  image,
+  setImage,
+  label,
+  id,
+}: ImageUploadProps) => {
   const getImageUrl = (image: File | null) =>
     image ? URL.createObjectURL(image) : "";
   const handleImageChange = (
@@ -21,7 +26,11 @@ export const ImageUpload = ({ image, setImage, label, id }: ImageUploadProps) =>
 
   return (
     <div className="flex flex-col max-h-full w-72 justify-end gap-4">
-      <div className={`flex-grow overflow-hidden flex items-center justify-center ${!image ? 'bg-white' : ''}`}>
+      <div
+        className={`flex-grow overflow-hidden flex items-center justify-center ${
+          !image ? "bg-white" : ""
+        }`}
+      >
         {image && (
           <img
             src={getImageUrl(image)}
@@ -44,4 +53,4 @@ export const ImageUpload = ({ image, setImage, label, id }: ImageUploadProps) =>
       </label>
     </div>
   );
-}
+};
