@@ -17,7 +17,7 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
-type PostImageCount = "一枚" | "二枚" | "";
+type PostImageCount = 1 | 2;
 
 function App() {
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
@@ -31,7 +31,9 @@ function App() {
   ]);
   const [title, setTitle] = useState("");
   const [additionalHashTag, setAdditionalHashTag] = useState("");
-  const [postImageCount, setPostImageCount] = useState<PostImageCount>("");
+  const [postImageCount, setPostImageCount] = useState<PostImageCount | null>(
+    null,
+  );
   const [instagramPostText, setInstagramPostText] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -58,14 +60,14 @@ function App() {
       return;
     }
 
-    const isSingleImageRequired = postImageCount === "一枚" && !firstPostImage;
+    const isSingleImageRequired = postImageCount === 1 && !firstPostImage;
     const isTripleImageRequired =
-      postImageCount === "二枚" &&
+      postImageCount === 2 &&
       (!firstPostImage || !secondCompositeImage || !screenshot);
 
-    const canAppendSingleImage = postImageCount === "一枚" && firstPostImage;
+    const canAppendSingleImage = postImageCount === 1 && firstPostImage;
     const canAppendTripleImages =
-      postImageCount === "二枚" &&
+      postImageCount === 2 &&
       firstPostImage &&
       secondCompositeImage &&
       screenshot;
@@ -103,7 +105,7 @@ function App() {
     });
     formData.append("youtubeUrl", youtubeUrl);
     formData.append("title", title);
-    formData.append("postImageCount", postImageCount);
+    formData.append("postImageCount", postImageCount.toString());
 
     try {
       alert("作成しました");
@@ -194,7 +196,10 @@ function App() {
               <div key={index} className="flex flex-col w-72 gap-6">
                 <GenericSelect<MemberName>
                   value={member.memberName}
-                  options={getAvailableMembers(index)}
+                  options={getAvailableMembers(index).map((name) => ({
+                    value: name,
+                    label: name,
+                  }))}
                   onChange={(value) =>
                     handleMemberChange(index, "memberName", value)
                   }
@@ -202,7 +207,10 @@ function App() {
                 />
                 <GenericSelect<TagPosition>
                   value={member.tagPosition}
-                  options={tagPositions}
+                  options={tagPositions.map((pos) => ({
+                    value: pos,
+                    label: pos,
+                  }))}
                   onChange={(value) =>
                     handleMemberChange(index, "tagPosition", value)
                   }
@@ -220,7 +228,10 @@ function App() {
           <div className="flex flex-col w-72 gap-6">
             <GenericSelect<PostImageCount>
               value={postImageCount}
-              options={["一枚", "二枚"]}
+              options={[
+                { value: 1, label: "一枚" },
+                { value: 2, label: "二枚" },
+              ]}
               onChange={setPostImageCount}
               placeholder="投稿画像の枚数を選択"
             />
