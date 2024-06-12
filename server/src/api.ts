@@ -18,6 +18,8 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
+export type PostImageCount = 1 | 2;
+
 export const api = new Elysia({ prefix: "/api" })
   .group("/login", (router) => {
     router.use(
@@ -43,19 +45,21 @@ export const api = new Elysia({ prefix: "/api" })
         | null;
       const membersData = parseMembersData(formData);
       const unitName = getUnitName(membersData);
-      const postImageCount = formData.get("postImageCount") as string;
+      const postImageCount = parseInt(
+        formData.get("postImageCount") as string,
+      ) as PostImageCount;
 
       const firstPostImage = formData.get("firstPostImage") as File | null;
       let secondCompositeImage: File | null = null;
       let screenshot: File | null = null;
       switch (postImageCount) {
-        case "一枚":
+        case 1:
           if (!firstPostImage) {
             set.status = 400;
             throw new Error("image1 is required");
           }
           break;
-        case "二枚":
+        case 2:
           secondCompositeImage = formData.get(
             "secondCompositeImage",
           ) as File | null;
