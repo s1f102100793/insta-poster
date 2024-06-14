@@ -12,7 +12,7 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
-type EditImageForm = "rectangle" | "square";
+type EditImageForm = "square" | "horizontalRectangle" | "verticalRectangle";
 
 function EditPage() {
   const [testImage, setTestImage] = useState<File | null>(null);
@@ -53,7 +53,8 @@ function EditPage() {
           value={editImageForm}
           options={[
             { value: "square", label: "正方形" },
-            { value: "rectangle", label: "長方形" },
+            { value: "verticalRectangle", label: "縦向き長方形" },
+            { value: "horizontalRectangle", label: "横向き長方形" },
           ]}
           onChange={setEditImageForm}
           placeholder="編集する画像の形状を選択"
