@@ -19,6 +19,10 @@ export interface Member {
 }
 
 export type PostImageCount = 1 | 2;
+export type EditImageForm =
+  | "square"
+  | "horizontalRectangle"
+  | "verticalRectangle";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/login", (router) => {
@@ -108,4 +112,18 @@ export const api = new Elysia({ prefix: "/api" })
       if (!postResult) return;
       return postResult.postText;
     }),
-  );
+  )
+  .group("/edit", (router) => {
+    router.post("", async ({ request, set }) => {
+      const formData = await request.formData();
+      const image = formData.get("image") as File | null;
+      const editImageForm = formData.get("editImageForm") as EditImageForm;
+      if (!image) {
+        set.status = 400;
+        throw new Error("image1 is required");
+      }
+      const output = await sharpUseCase.editImage(image, editImageForm);
+      return output;
+    });
+    return router;
+  });

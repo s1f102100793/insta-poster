@@ -93,4 +93,42 @@ export const sharpUtils = {
     const buffer = await compositeImage.toBuffer();
     return buffer;
   },
+  async validateInstagramImageSize(imageBuffer: ArrayBuffer): Promise<Buffer> {
+    const image = sharp(Buffer.from(imageBuffer));
+    const metadata = await image.metadata();
+
+    const minAspectRatio = 566 / 1080;
+    const maxAspectRatio = 1350 / 1080;
+    const imageAspectRatio = metadata.height! / metadata.width!;
+
+    if (imageAspectRatio < minAspectRatio) {
+      const targetHeight = metadata.width! * minAspectRatio;
+      const padding = Math.round((targetHeight - metadata.height!) / 2);
+      return await image
+        .extend({
+          top: padding,
+          bottom: padding,
+          left: 0,
+          right: 0,
+          background: { r: 255, g: 255, b: 255, alpha: 1 },
+        })
+        .resize({ width: 1080, height: 566 })
+        .toBuffer();
+    } else if (imageAspectRatio > maxAspectRatio) {
+      console.log("imageAspectRatio", imageAspectRatio);
+      const targetWidth = metadata.height! / maxAspectRatio;
+      const padding = Math.round((targetWidth - metadata.width!) / 2);
+      return await image
+        .extend({
+          top: 0,
+          bottom: 0,
+          left: padding,
+          right: padding,
+          background: { r: 255, g: 255, b: 255, alpha: 1 },
+        })
+        .resize({ width: 1080, height: 1350 })
+        .toBuffer();
+    }
+    return await image.toBuffer();
+  },
 };

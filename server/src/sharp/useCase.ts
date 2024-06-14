@@ -1,4 +1,5 @@
 import { sharpUtils } from ".";
+import { EditImageForm } from "../api";
 import { googlePhotosUseCase } from "../google/photosUseCase";
 
 export const sharpUseCase = {
@@ -49,5 +50,10 @@ export const sharpUseCase = {
       removeFrameImageOutputPath,
       "remove frame image",
     );
+  },
+  async editImage(image: File, editImageForm: EditImageForm) {
+    const imageBuffer = await image.arrayBuffer();
+    const output = await sharpUtils.validateInstagramImageSize(imageBuffer);
+    return output;
   },
 };
