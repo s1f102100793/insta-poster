@@ -34,13 +34,13 @@ export const api = new Elysia({ prefix: "/api" })
         noErrorThrown: false,
       }),
     ),
-      router.post("/", async () => {
+      router.post("", async () => {
         return { message: "You are authenticated" };
       });
     return router;
   })
   .group("/posts", (router) =>
-    router.post("/", async ({ request, set }) => {
+    router.post("", async ({ request, set }) => {
       const formData = await request.formData();
       const youtubeUrl = formData.get("youtubeUrl") as string;
       const title = formData.get("title") as string;
