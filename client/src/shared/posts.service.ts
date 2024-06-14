@@ -7,4 +7,10 @@ export const postsService = {
       body: formData,
     });
   },
+  editImage: async (formData: FormData) => {
+    return fetch(`${env.SERVER_URL}/api/edit`, {
+      method: "POST",
+      body: formData,
+    });
+  },
 };
