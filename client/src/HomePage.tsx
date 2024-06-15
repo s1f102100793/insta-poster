@@ -11,6 +11,7 @@ import { ImageUpload } from "./components/ImageUpload";
 import { TextInput } from "./components/TextInput";
 import { BackgroundLayers } from "./components/BackgroundLayers";
 import { Button } from "./components/Button";
+import { useNavigate } from "react-router-dom";
 
 export interface Member {
   memberName: MemberName | "";
@@ -20,6 +21,7 @@ export interface Member {
 type PostImageCount = 1 | 2;
 
 function HomePage() {
+  const navigate = useNavigate();
   const [firstPostImage, setFirstPostImage] = useState<File | null>(null);
   const [secondCompositeImage, setSecondCompositeImage] = useState<File | null>(
     null,
@@ -150,12 +152,27 @@ function HomePage() {
     return memberNames.filter((memberName) => !selectedMembers.has(memberName));
   };
 
+  const navigateToEditPage = () => {
+    navigate("/edit");
+  };
+
   return (
-    <div className="relative w-full min-h-screen">
+    <div className="relative w-full min-h-screen flex items-center justify-center">
       <BackgroundLayers members={members} />
       <div
-        className={`flex flex-col items-center justify-center min-h-screen gap-6`}
+        className="flex flex-col items-end justify-center min-h-screen gap-6"
+        style={{ width: "60rem" }}
       >
+        <div
+          className="flex flex-row padding w-72 pr-3"
+          style={{ width: "19rem" }}
+        >
+          <Button
+            color="bg-purple-500"
+            text="編集ページへ"
+            onClick={navigateToEditPage}
+          />
+        </div>
         <div className="flex flex-row gap-6 border-2 border-white p-3 padding h-[400px]">
           <ImageUpload
             image={firstPostImage}
