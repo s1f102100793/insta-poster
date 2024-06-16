@@ -112,10 +112,8 @@ export const sharpUtils = {
           right: 0,
           background: { r: 255, g: 255, b: 255, alpha: 1 },
         })
-        .resize({ width: 1080, height: 566 })
         .toBuffer();
     } else if (imageAspectRatio > maxAspectRatio) {
-      console.log("imageAspectRatio", imageAspectRatio);
       const targetWidth = metadata.height! / maxAspectRatio;
       const padding = Math.round((targetWidth - metadata.width!) / 2);
       return await image
@@ -126,7 +124,6 @@ export const sharpUtils = {
           right: padding,
           background: { r: 255, g: 255, b: 255, alpha: 1 },
         })
-        .resize({ width: 1080, height: 1350 })
         .toBuffer();
     }
     return await image.toBuffer();
