@@ -12,6 +12,7 @@ import { basicAuth } from "elysia-basic-auth";
 import { sharpUseCase } from "./sharp/useCase";
 import { s3UseCase } from "./s3/useCase";
 import { instagramUseCase } from "./sns/instagram/useCase";
+import { match } from "ts-pattern";
 
 export interface Member {
   memberName: MemberName | "";
@@ -19,10 +20,8 @@ export interface Member {
 }
 
 export type PostImageCount = 1 | 2;
-export type EditImageForm =
-  | "square"
-  | "horizontalRectangle"
-  | "verticalRectangle";
+
+export type EditImageType = "resizeForInstagram" | "createMockIphone";
 
 export const api = new Elysia({ prefix: "/api" })
   .group("/login", (router) => {
@@ -117,13 +116,21 @@ export const api = new Elysia({ prefix: "/api" })
     router.post("", async ({ request, set }) => {
       const formData = await request.formData();
       const image = formData.get("image") as File | null;
-      const editImageForm = formData.get("editImageForm") as EditImageForm;
+      const editImageType = formData.get("editImageType") as EditImageType;
       if (!image) {
         set.status = 400;
         throw new Error("image1 is required");
       }
-      const output = await sharpUseCase.editImage(image, editImageForm);
-      return output;
+
+      const output = await match(editImageType)
+        .with("resizeForInstagram", async () => {
+          return await sharpUseCase.editImage(image);
+        })
+        .with("createMockIphone", async () => {
+          return await sharpUseCase.createMockIphoneHomeImage(image);
+        })
+        .run();
+      return `data:image/jpeg;base64,${output.toString("base64")}`;
     });
     return router;
   });

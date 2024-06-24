@@ -13,19 +13,19 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
-type EditImageForm = "square" | "horizontalRectangle" | "verticalRectangle";
+export type EditImageType = "resizeForInstagram" | "createMockIphone";
 
 function EditPage() {
   const navigate = useNavigate();
   const [testImage, setTestImage] = useState<File | null>(null);
-  const [editImageForm, setEditImageForm] = useState<EditImageForm | null>(
+  const [editImageType, setEditImageType] = useState<EditImageType | null>(
     null,
   );
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   const editImage = () => {
-    match({ editImageForm, testImage })
-      .with({ editImageForm: null }, () => {
+    match({ editImageType, testImage })
+      .with({ editImageType: null }, () => {
         alert("画像の形状を選択してください");
         console.error("画像の形状を選択してください");
       })
@@ -36,7 +36,7 @@ function EditPage() {
       .otherwise(async () => {
         const formData = new FormData();
         formData.append("image", testImage as File);
-        formData.append("editImageForm", editImageForm as string);
+        formData.append("editImageType", editImageType as string);
         const response = await postsService.editImage(formData);
         const result = await response.text();
 
@@ -101,15 +101,14 @@ function EditPage() {
             />
           </div>
           <div className="flex flex-col items-center gap-6 pr-3 pl-3">
-            <GenericSelect<EditImageForm>
-              value={editImageForm}
+            <GenericSelect<EditImageType>
+              value={editImageType}
               options={[
-                { value: "square", label: "正方形" },
-                { value: "verticalRectangle", label: "縦向き長方形" },
-                { value: "horizontalRectangle", label: "横向き長方形" },
+                { value: "resizeForInstagram", label: "Instagram用にリサイズ" },
+                { value: "createMockIphone", label: "Iphoneのモックを作成" },
               ]}
-              onChange={setEditImageForm}
-              placeholder="編集する画像の形状を選択"
+              onChange={setEditImageType}
+              placeholder="画像の形状を選択してください"
             />
             <Button
               color="bg-green-500"

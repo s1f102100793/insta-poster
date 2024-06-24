@@ -1,10 +1,10 @@
 import sharp from "sharp";
 import { sharpUtils } from ".";
-import { EditImageForm } from "../api";
 import { googlePhotosUseCase } from "../google/photosUseCase";
 import { promises as fs } from "fs";
 
 const cwd = process.cwd();
+const mockImagePath = `${cwd}/assets/mock.png`;
 
 export const sharpUseCase = {
   async saveImageWithFallback(
@@ -55,49 +55,45 @@ export const sharpUseCase = {
       "remove frame image",
     );
   },
-  async editImage(image: File, editImageForm: EditImageForm) {
+  async editImage(image: File): Promise<Buffer> {
     const imageBuffer = await image.arrayBuffer();
     const output = await sharpUtils.validateInstagramImageSize(imageBuffer);
     return output;
   },
-  async createMockIphoneHomeImage(screenshotImage: File) {
-    const mockImagePath = `${cwd}/assets/mock.png`;
+  async createMockIphoneHomeImage(screenshotImage: File): Promise<Buffer> {
     const mockImageBuffer = await fs.readFile(mockImagePath);
     const screenshotImageBuffer = await screenshotImage.arrayBuffer();
+    const unifiedScreenshotSize = {
+      width: 870,
+      height: 1882,
+    };
 
     const resizeScreenshotBuffer1 = await sharp(screenshotImageBuffer)
-      .resize({
-        width: 870,
-        height: 1882,
+      .resize(unifiedScreenshotSize)
+      .toBuffer();
+
+    const x = 100;
+    const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer1)
+      .extend({
+        top: x,
+        bottom: x,
+        left: x,
+        right: x,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
       })
       .toBuffer();
 
-    try {
-      const x = 100;
-      const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer1)
-        .extend({
-          top: x,
-          bottom: x,
-          left: x,
-          right: x,
-          background: { r: 255, g: 255, b: 255, alpha: 1 },
-        })
-        .toBuffer();
+    const resizeScreenshotBuffer2 = await sharp(paddedScreenshotBuffer)
+      .resize({
+        width: 850 + 2 * x,
+        height: 1850 + 2 * x,
+      })
+      .toBuffer();
 
-      const resizeScreenshotBuffer2 = await sharp(paddedScreenshotBuffer)
-        .resize({
-          width: 850 + 2 * x,
-          height: 1850 + 2 * x,
-        })
-        .toBuffer();
+    const compositeImage = await sharp(resizeScreenshotBuffer2)
+      .composite([{ input: mockImageBuffer, blend: "over" }])
+      .toBuffer();
 
-      const compositeImage = await sharp(resizeScreenshotBuffer2)
-        .composite([{ input: mockImageBuffer, blend: "over" }])
-        .toBuffer();
-
-      return compositeImage;
-    } catch (e) {
-      console.log(e);
-    }
+    return compositeImage;
   },
 };
