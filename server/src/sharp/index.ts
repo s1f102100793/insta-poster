@@ -1,7 +1,9 @@
 import sharp from "sharp";
 import path from "path";
 import { ensureDir } from "../fs";
-
+import { promises as fs } from "fs";
+import { path as pathUtils } from "../service/path";
+import { paddingSize } from "./useCase";
 interface sharpMetadata {
   width: number;
   height: number;
@@ -127,5 +129,18 @@ export const sharpUtils = {
         .toBuffer();
     }
     return await image.toBuffer();
+  },
+  async compositeWithMockImage(screenshotBuffer: Buffer) {
+    const resizeScreenshotBuffer = await sharp(screenshotBuffer)
+      .resize({
+        width: 850 + 2 * paddingSize,
+        height: 1850 + 2 * paddingSize,
+      })
+      .toBuffer();
+    const mockImageBuffer = await fs.readFile(pathUtils.mockImagePath);
+    const compositeImage = await sharp(resizeScreenshotBuffer)
+      .composite([{ input: mockImageBuffer, blend: "over" }])
+      .toBuffer();
+    return compositeImage;
   },
 };

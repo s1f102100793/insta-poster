@@ -1,10 +1,8 @@
 import sharp from "sharp";
 import { sharpUtils } from ".";
 import { googlePhotosUseCase } from "../google/photosUseCase";
-import { promises as fs } from "fs";
 
-const cwd = process.cwd();
-const mockImagePath = `${cwd}/assets/mock.png`;
+export const paddingSize = 100;
 
 export const sharpUseCase = {
   async saveImageWithFallback(
@@ -61,7 +59,6 @@ export const sharpUseCase = {
     return output;
   },
   async createMockIphoneHomeImage(screenshotImage: File): Promise<Buffer> {
-    const mockImageBuffer = await fs.readFile(mockImagePath);
     const screenshotImageBuffer = await screenshotImage.arrayBuffer();
     const unifiedScreenshotSize = {
       width: 870,
@@ -72,7 +69,6 @@ export const sharpUseCase = {
       .resize(unifiedScreenshotSize)
       .toBuffer();
 
-    const paddingSize = 100;
     const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer1)
       .extend({
         top: paddingSize,
@@ -83,17 +79,9 @@ export const sharpUseCase = {
       })
       .toBuffer();
 
-    const resizeScreenshotBuffer2 = await sharp(paddedScreenshotBuffer)
-      .resize({
-        width: 850 + 2 * paddingSize,
-        height: 1850 + 2 * paddingSize,
-      })
-      .toBuffer();
-
-    const compositeImage = await sharp(resizeScreenshotBuffer2)
-      .composite([{ input: mockImageBuffer, blend: "over" }])
-      .toBuffer();
-
+    const compositeImage = await sharpUtils.compositeWithMockImage(
+      paddedScreenshotBuffer,
+    );
     return compositeImage;
   },
 };
