@@ -72,21 +72,21 @@ export const sharpUseCase = {
       .resize(unifiedScreenshotSize)
       .toBuffer();
 
-    const x = 100;
+    const paddingSize = 100;
     const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer1)
       .extend({
-        top: x,
-        bottom: x,
-        left: x,
-        right: x,
+        top: paddingSize,
+        bottom: paddingSize,
+        left: paddingSize,
+        right: paddingSize,
         background: { r: 255, g: 255, b: 255, alpha: 1 },
       })
       .toBuffer();
 
     const resizeScreenshotBuffer2 = await sharp(paddedScreenshotBuffer)
       .resize({
-        width: 850 + 2 * x,
-        height: 1850 + 2 * x,
+        width: 850 + 2 * paddingSize,
+        height: 1850 + 2 * paddingSize,
       })
       .toBuffer();
 
