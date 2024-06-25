@@ -11,6 +11,8 @@ function outputPath(
   return `${base}/${folder}/${unitName}_${title}${suffix}`;
 }
 
+const cwd = process.cwd();
+
 export const path = {
   getPaths: (unitName: string, title: string, folderPrefix: string) => {
     const unitNameRomaji = convertUnitNameToRomaji(unitName);
@@ -35,4 +37,5 @@ export const path = {
       secondPostImageEnd: `complete/${unitNameRomaji}_${titleEncoded}_2.png`,
     };
   },
+  mockImagePath: `${cwd}/assets/mock.png`,
 };
