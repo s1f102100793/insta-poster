@@ -1,8 +1,7 @@
 import sharp from "sharp";
 import { sharpUtils } from ".";
 import { googlePhotosUseCase } from "../google/photosUseCase";
-
-export const paddingSize = 100;
+import { ImageSizes, paddingSize } from "../service/imageSizes";
 
 export const sharpUseCase = {
   async saveImageWithFallback(
@@ -60,16 +59,11 @@ export const sharpUseCase = {
   },
   async createMockIphoneHomeImage(screenshotImage: File): Promise<Buffer> {
     const screenshotImageBuffer = await screenshotImage.arrayBuffer();
-    const unifiedScreenshotSize = {
-      width: 870,
-      height: 1882,
-    };
-
-    const resizeScreenshotBuffer1 = await sharp(screenshotImageBuffer)
-      .resize(unifiedScreenshotSize)
-      .toBuffer();
-
-    const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer1)
+    const resizeScreenshotBuffer = await sharpUtils.resizeImage(
+      screenshotImageBuffer,
+      ImageSizes.unifiedScreenshotSize,
+    );
+    const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer)
       .extend({
         top: paddingSize,
         bottom: paddingSize,

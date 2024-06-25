@@ -3,7 +3,8 @@ import path from "path";
 import { ensureDir } from "../fs";
 import { promises as fs } from "fs";
 import { path as pathUtils } from "../service/path";
-import { paddingSize } from "./useCase";
+
+import { ImageSizeType, ImageSizes } from "../service/imageSizes";
 interface sharpMetadata {
   width: number;
   height: number;
@@ -131,16 +132,20 @@ export const sharpUtils = {
     return await image.toBuffer();
   },
   async compositeWithMockImage(screenshotBuffer: Buffer) {
-    const resizeScreenshotBuffer = await sharp(screenshotBuffer)
-      .resize({
-        width: 850 + 2 * paddingSize,
-        height: 1850 + 2 * paddingSize,
-      })
-      .toBuffer();
+    const resizeScreenshotBuffer = await sharpUtils.resizeImage(
+      screenshotBuffer,
+      ImageSizes.iphoneMockupBaseSize,
+    );
     const mockImageBuffer = await fs.readFile(pathUtils.mockImagePath);
     const compositeImage = await sharp(resizeScreenshotBuffer)
       .composite([{ input: mockImageBuffer, blend: "over" }])
       .toBuffer();
     return compositeImage;
+  },
+  async resizeImage(
+    imageBuffer: ArrayBuffer | Buffer,
+    imageSize: ImageSizeType,
+  ) {
+    return await sharp(imageBuffer).resize(imageSize).toBuffer();
   },
 };
