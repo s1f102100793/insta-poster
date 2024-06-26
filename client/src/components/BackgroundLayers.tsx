@@ -1,7 +1,7 @@
 import { CSSProperties } from "react";
 import { MemberName } from "../../../server/src/service/memberName";
 import { memberColors } from "../types/member";
-import { Member } from "../App";
+import { Member } from "../HomePage";
 
 type BackgroundLayersProps = {
   members: Member[];

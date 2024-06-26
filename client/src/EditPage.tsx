@@ -1,17 +1,10 @@
 import { useState } from "react";
-import { MemberName } from "./types/member";
-import { TagPosition } from "./types/tagPositions";
 import { ImageUpload } from "./components/ImageUpload";
 import { GenericSelect } from "./components/GenericSelect";
 import { Button } from "./components/Button";
 import { match } from "ts-pattern";
 import { postsService } from "./shared/posts.service";
 import { useNavigate } from "react-router-dom";
-
-export interface Member {
-  memberName: MemberName | "";
-  tagPosition: TagPosition | "";
-}
 
 export type EditImageType = "resizeForInstagram" | "createMockIphone";
 
