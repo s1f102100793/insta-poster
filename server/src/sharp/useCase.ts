@@ -1,4 +1,3 @@
-import sharp from "sharp";
 import { sharpUtils } from ".";
 import { googlePhotosUseCase } from "../google/photosUseCase";
 import { ImageSizes, paddingSize } from "../service/imageSizes";
@@ -63,16 +62,13 @@ export const sharpUseCase = {
       screenshotImageBuffer,
       ImageSizes.unifiedScreenshotSize,
     );
-    const paddedScreenshotBuffer = await sharp(resizeScreenshotBuffer)
-      .extend({
+    const paddedScreenshotBuffer =
+      await sharpUtils.extendImageWithWhiteBackground(resizeScreenshotBuffer, {
         top: paddingSize,
         bottom: paddingSize,
         left: paddingSize,
         right: paddingSize,
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
-      })
-      .toBuffer();
-
+      });
     const compositeImage = await sharpUtils.compositeWithMockImage(
       paddedScreenshotBuffer,
     );

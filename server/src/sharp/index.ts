@@ -3,8 +3,8 @@ import path from "path";
 import { ensureDir } from "../fs";
 import { promises as fs } from "fs";
 import { path as pathUtils } from "../service/path";
-
 import { ImageSizeType, ImageSizes } from "../service/imageSizes";
+import { P, match } from "ts-pattern";
 interface sharpMetadata {
   width: number;
   height: number;
@@ -96,6 +96,26 @@ export const sharpUtils = {
     const buffer = await compositeImage.toBuffer();
     return buffer;
   },
+  async resizeImage(
+    imageBuffer: ArrayBuffer | Buffer,
+    imageSize: ImageSizeType,
+  ) {
+    return await sharp(imageBuffer).resize(imageSize).toBuffer();
+  },
+  async extendImageWithWhiteBackground(
+    imageBuffer: ArrayBuffer | Buffer,
+    padding: { top: number; bottom: number; left: number; right: number },
+  ): Promise<Buffer> {
+    return await sharp(imageBuffer)
+      .extend({
+        top: padding.top,
+        bottom: padding.bottom,
+        left: padding.left,
+        right: padding.right,
+        background: { r: 255, g: 255, b: 255, alpha: 1 },
+      })
+      .toBuffer();
+  },
   async validateInstagramImageSize(imageBuffer: ArrayBuffer): Promise<Buffer> {
     const image = sharp(Buffer.from(imageBuffer));
     const metadata = await image.metadata();
@@ -104,32 +124,34 @@ export const sharpUtils = {
     const maxAspectRatio = 1350 / 1080;
     const imageAspectRatio = metadata.height! / metadata.width!;
 
-    if (imageAspectRatio < minAspectRatio) {
-      const targetHeight = metadata.width! * minAspectRatio;
-      const padding = Math.round((targetHeight - metadata.height!) / 2);
-      return await image
-        .extend({
-          top: padding,
-          bottom: padding,
-          left: 0,
-          right: 0,
-          background: { r: 255, g: 255, b: 255, alpha: 1 },
-        })
-        .toBuffer();
-    } else if (imageAspectRatio > maxAspectRatio) {
-      const targetWidth = metadata.height! / maxAspectRatio;
-      const padding = Math.round((targetWidth - metadata.width!) / 2);
-      return await image
-        .extend({
-          top: 0,
-          bottom: 0,
-          left: padding,
-          right: padding,
-          background: { r: 255, g: 255, b: 255, alpha: 1 },
-        })
-        .toBuffer();
-    }
-    return await image.toBuffer();
+    return match(imageAspectRatio)
+      .with(
+        P.when((ratio) => ratio < minAspectRatio),
+        async () => {
+          const targetHeight = metadata.width! * minAspectRatio;
+          const padding = Math.round((targetHeight - metadata.height!) / 2);
+          return await sharpUtils.extendImageWithWhiteBackground(imageBuffer, {
+            top: padding,
+            bottom: padding,
+            left: 0,
+            right: 0,
+          });
+        },
+      )
+      .with(
+        P.when((ratio) => ratio > maxAspectRatio),
+        async () => {
+          const targetWidth = metadata.height! / maxAspectRatio;
+          const padding = Math.round((targetWidth - metadata.width!) / 2);
+          return await sharpUtils.extendImageWithWhiteBackground(imageBuffer, {
+            top: 0,
+            bottom: 0,
+            left: padding,
+            right: padding,
+          });
+        },
+      )
+      .otherwise(async () => await image.toBuffer());
   },
   async compositeWithMockImage(screenshotBuffer: Buffer) {
     const resizeScreenshotBuffer = await sharpUtils.resizeImage(
@@ -141,11 +163,5 @@ export const sharpUtils = {
       .composite([{ input: mockImageBuffer, blend: "over" }])
       .toBuffer();
     return compositeImage;
-  },
-  async resizeImage(
-    imageBuffer: ArrayBuffer | Buffer,
-    imageSize: ImageSizeType,
-  ) {
-    return await sharp(imageBuffer).resize(imageSize).toBuffer();
   },
 };
