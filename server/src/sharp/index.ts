@@ -164,4 +164,68 @@ export const sharpUtils = {
       .toBuffer();
     return compositeImage;
   },
+  async compositeWithBackgroundImage(mockImageBuffer: Buffer) {
+    const backgroundImageBuffer = await fs.readFile(
+      pathUtils.backgroundImagePath,
+    );
+
+    const replacementColor: [number, number, number] = [0, 255, 0];
+
+    const resultBuffer = await replaceColor(
+      backgroundImageBuffer,
+      replacementColor,
+    );
+
+    const resizedMockImageBuffer = await sharp(mockImageBuffer)
+      .resize(870, 1700)
+      .toBuffer();
+
+    const left = Math.round((2000 - 870) / 2);
+    const top = 75;
+    const compositeImage = await sharp(resultBuffer)
+      .composite([
+        { input: resizedMockImageBuffer, top: top, left: left, blend: "over" },
+      ])
+      .toBuffer();
+
+    return compositeImage;
+  },
 };
+
+async function replaceColor(
+  imageBuffer: Buffer,
+  replacementColor: [number, number, number],
+) {
+  let image = sharp(imageBuffer);
+  const { width, height, channels } = await image.metadata();
+
+  if (!width || !height) {
+    throw new Error("Image must have width and height");
+  }
+
+  if (channels === 4) {
+    image = image.removeAlpha();
+  }
+
+  const raw = await image.raw().toBuffer();
+  const targetColor: [number, number, number] = [255, 255, 255];
+
+  for (let i = 0; i < raw.length; i += 3) {
+    if (
+      raw[i] === targetColor[0] &&
+      raw[i + 1] === targetColor[1] &&
+      raw[i + 2] === targetColor[2]
+    ) {
+      raw[i] = replacementColor[0];
+      raw[i + 1] = replacementColor[1];
+      raw[i + 2] = replacementColor[2];
+    }
+  }
+
+  const replacedImage = await sharp(raw, {
+    raw: { width, height, channels: 3 },
+  })
+    .toFormat("png")
+    .toBuffer();
+  return replacedImage;
+}

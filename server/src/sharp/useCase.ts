@@ -69,9 +69,11 @@ export const sharpUseCase = {
         left: paddingSize,
         right: paddingSize,
       });
-    const compositeImage = await sharpUtils.compositeWithMockImage(
+    const mockImageBuffer = await sharpUtils.compositeWithMockImage(
       paddedScreenshotBuffer,
     );
+    const compositeImage =
+      await sharpUtils.compositeWithBackgroundImage(mockImageBuffer);
     return compositeImage;
   },
 };
