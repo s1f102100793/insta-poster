@@ -38,4 +38,5 @@ export const path = {
     };
   },
   mockImagePath: `${cwd}/assets/mock.png`,
+  backgroundImagePath: `${cwd}/assets/background.png`,
 };
