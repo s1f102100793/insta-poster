@@ -19,6 +19,13 @@ export interface Member {
   tagPosition: TagPosition | "";
 }
 
+export interface RGBA {
+  r: number;
+  g: number;
+  b: number;
+  alpha: number;
+}
+
 export type PostImageCount = 1 | 2;
 
 export type EditImageType = "resizeForInstagram" | "createMockIphone";
@@ -127,7 +134,16 @@ export const api = new Elysia({ prefix: "/api" })
           return await sharpUseCase.editImage(image);
         })
         .with("createMockIphone", async () => {
-          return await sharpUseCase.createMockIphoneHomeImage(image);
+          const backgroundRGBAValue = formData.get("backgroundRGBA");
+          if (typeof backgroundRGBAValue !== "string") {
+            set.status = 400;
+            throw new Error("backgroundRGBA is required and must be a string");
+          }
+          const backgroundRGBA: RGBA = JSON.parse(backgroundRGBAValue);
+          return await sharpUseCase.createMockIphoneHomeImage(
+            image,
+            backgroundRGBA,
+          );
         })
         .run();
       return `data:image/jpeg;base64,${output.toString("base64")}`;

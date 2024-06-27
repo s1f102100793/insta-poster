@@ -5,6 +5,7 @@ import { promises as fs } from "fs";
 import { path as pathUtils } from "../service/path";
 import { ImageSizeType, ImageSizes } from "../service/imageSizes";
 import { P, match } from "ts-pattern";
+import { RGBA } from "../api";
 interface sharpMetadata {
   width: number;
   height: number;
@@ -102,19 +103,56 @@ export const sharpUtils = {
   ) {
     return await sharp(imageBuffer).resize(imageSize).toBuffer();
   },
-  async extendImageWithWhiteBackground(
+  async extendImage(
     imageBuffer: ArrayBuffer | Buffer,
     padding: { top: number; bottom: number; left: number; right: number },
+    backgroundColor?: RGBA,
   ): Promise<Buffer> {
+    const bgColor = backgroundColor || { r: 255, g: 255, b: 255, alpha: 1 };
     return await sharp(imageBuffer)
       .extend({
         top: padding.top,
         bottom: padding.bottom,
         left: padding.left,
         right: padding.right,
-        background: { r: 255, g: 255, b: 255, alpha: 1 },
+        background: bgColor,
       })
       .toBuffer();
+  },
+  async replaceColor(imageBuffer: Buffer, replacementColor: RGBA) {
+    let image = sharp(imageBuffer);
+    const { width, height, channels } = await image.metadata();
+
+    if (!width || !height) {
+      throw new Error("Image must have width and height");
+    }
+
+    if (channels === 4) {
+      image = image.removeAlpha();
+    }
+
+    const raw = await image.raw().toBuffer();
+    const targetColor: [number, number, number, number] = [255, 255, 255, 1];
+
+    for (let i = 0; i < raw.length; i += 3) {
+      const currentColor = [raw[i], raw[i + 1], raw[i + 2]];
+      const isTargetColor = currentColor.every(
+        (value, index) => value === targetColor[index],
+      );
+
+      if (isTargetColor) {
+        raw[i] = replacementColor.r;
+        raw[i + 1] = replacementColor.g;
+        raw[i + 2] = replacementColor.b;
+      }
+    }
+
+    const replacedImage = await sharp(raw, {
+      raw: { width, height, channels: 3 },
+    })
+      .toFormat("png")
+      .toBuffer();
+    return replacedImage;
   },
   async validateInstagramImageSize(imageBuffer: ArrayBuffer): Promise<Buffer> {
     const image = sharp(Buffer.from(imageBuffer));
@@ -130,7 +168,7 @@ export const sharpUtils = {
         async () => {
           const targetHeight = metadata.width! * minAspectRatio;
           const padding = Math.round((targetHeight - metadata.height!) / 2);
-          return await sharpUtils.extendImageWithWhiteBackground(imageBuffer, {
+          return await sharpUtils.extendImage(imageBuffer, {
             top: padding,
             bottom: padding,
             left: 0,
@@ -143,7 +181,7 @@ export const sharpUtils = {
         async () => {
           const targetWidth = metadata.height! / maxAspectRatio;
           const padding = Math.round((targetWidth - metadata.width!) / 2);
-          return await sharpUtils.extendImageWithWhiteBackground(imageBuffer, {
+          return await sharpUtils.extendImage(imageBuffer, {
             top: 0,
             bottom: 0,
             left: padding,
@@ -164,16 +202,17 @@ export const sharpUtils = {
       .toBuffer();
     return compositeImage;
   },
-  async compositeWithBackgroundImage(mockImageBuffer: Buffer) {
+  async compositeWithBackgroundImage(
+    mockImageBuffer: Buffer,
+    backgroundColor: RGBA,
+  ) {
     const backgroundImageBuffer = await fs.readFile(
       pathUtils.backgroundImagePath,
     );
 
-    const replacementColor: [number, number, number] = [0, 255, 0];
-
-    const resultBuffer = await replaceColor(
+    const resultBuffer = await sharpUtils.replaceColor(
       backgroundImageBuffer,
-      replacementColor,
+      backgroundColor,
     );
 
     const resizedMockImageBuffer = await sharp(mockImageBuffer)
@@ -191,41 +230,3 @@ export const sharpUtils = {
     return compositeImage;
   },
 };
-
-async function replaceColor(
-  imageBuffer: Buffer,
-  replacementColor: [number, number, number],
-) {
-  let image = sharp(imageBuffer);
-  const { width, height, channels } = await image.metadata();
-
-  if (!width || !height) {
-    throw new Error("Image must have width and height");
-  }
-
-  if (channels === 4) {
-    image = image.removeAlpha();
-  }
-
-  const raw = await image.raw().toBuffer();
-  const targetColor: [number, number, number] = [255, 255, 255];
-
-  for (let i = 0; i < raw.length; i += 3) {
-    if (
-      raw[i] === targetColor[0] &&
-      raw[i + 1] === targetColor[1] &&
-      raw[i + 2] === targetColor[2]
-    ) {
-      raw[i] = replacementColor[0];
-      raw[i + 1] = replacementColor[1];
-      raw[i + 2] = replacementColor[2];
-    }
-  }
-
-  const replacedImage = await sharp(raw, {
-    raw: { width, height, channels: 3 },
-  })
-    .toFormat("png")
-    .toBuffer();
-  return replacedImage;
-}

@@ -1,4 +1,5 @@
 import { sharpUtils } from ".";
+import { RGBA } from "../api";
 import { googlePhotosUseCase } from "../google/photosUseCase";
 import { ImageSizes, paddingSize } from "../service/imageSizes";
 
@@ -56,24 +57,32 @@ export const sharpUseCase = {
     const output = await sharpUtils.validateInstagramImageSize(imageBuffer);
     return output;
   },
-  async createMockIphoneHomeImage(screenshotImage: File): Promise<Buffer> {
+  async createMockIphoneHomeImage(
+    screenshotImage: File,
+    backgroundColor: RGBA,
+  ): Promise<Buffer> {
     const screenshotImageBuffer = await screenshotImage.arrayBuffer();
     const resizeScreenshotBuffer = await sharpUtils.resizeImage(
       screenshotImageBuffer,
       ImageSizes.unifiedScreenshotSize,
     );
-    const paddedScreenshotBuffer =
-      await sharpUtils.extendImageWithWhiteBackground(resizeScreenshotBuffer, {
+    const paddedScreenshotBuffer = await sharpUtils.extendImage(
+      resizeScreenshotBuffer,
+      {
         top: paddingSize,
         bottom: paddingSize,
         left: paddingSize,
         right: paddingSize,
-      });
+      },
+      backgroundColor,
+    );
     const mockImageBuffer = await sharpUtils.compositeWithMockImage(
       paddedScreenshotBuffer,
     );
-    const compositeImage =
-      await sharpUtils.compositeWithBackgroundImage(mockImageBuffer);
+    const compositeImage = await sharpUtils.compositeWithBackgroundImage(
+      mockImageBuffer,
+      backgroundColor,
+    );
     return compositeImage;
   },
 };
