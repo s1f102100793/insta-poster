@@ -5,6 +5,7 @@ import { Button } from "./components/Button";
 import { match } from "ts-pattern";
 import { postsService } from "./shared/posts.service";
 import { useNavigate } from "react-router-dom";
+import { ChromePicker, ColorResult, RGBColor } from "react-color";
 
 export type EditImageType = "resizeForInstagram" | "createMockIphone";
 
@@ -15,6 +16,12 @@ function EditPage() {
     null,
   );
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [backgroundRGBA, setBackgroundRGBA] = useState<RGBColor>({
+    r: 0,
+    g: 255,
+    b: 255,
+    a: 1,
+  });
 
   const editImage = () => {
     match({ editImageType, testImage })
@@ -30,6 +37,16 @@ function EditPage() {
         const formData = new FormData();
         formData.append("image", testImage as File);
         formData.append("editImageType", editImageType as string);
+        formData.append(
+          "backgroundRGBA",
+          JSON.stringify({
+            r: backgroundRGBA.r,
+            g: backgroundRGBA.g,
+            b: backgroundRGBA.b,
+            alpha: backgroundRGBA.a,
+          }),
+        );
+
         const response = await postsService.editImage(formData);
         const result = await response.text();
 
@@ -71,6 +88,10 @@ function EditPage() {
     navigate("/");
   };
 
+  const handleColorChange = (color: ColorResult) => {
+    setBackgroundRGBA(color.rgb);
+  };
+
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center justify-center min-h-screen gap-6">
       <div
@@ -84,6 +105,11 @@ function EditPage() {
         />
       </div>
       <div className="flex flex-row padding pr-3 gap-6">
+        {editImageType === "createMockIphone" && (
+          <div>
+            <ChromePicker color={backgroundRGBA} onChange={handleColorChange} />
+          </div>
+        )}
         <div className="flex flex-col gap-6">
           <div className="flex flex-row gap-6 border-2 border-white p-3 padding h-[400px]">
             <ImageUpload
