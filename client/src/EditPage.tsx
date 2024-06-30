@@ -28,6 +28,13 @@ function EditPage() {
 
   const editImage = () => {
     match({ editImageType, testImage, authorNameColor })
+      .with(
+        { editImageType: "createMockIphone", authorNameColor: null },
+        () => {
+          alert("TOKAI IRASUTOYAの色を選択してください");
+          console.error("TOKAI IRASUTOYAの色を選択してください");
+        },
+      )
       .with({ editImageType: null }, () => {
         alert("画像の形状を選択してください");
         console.error("画像の形状を選択してください");
@@ -35,10 +42,6 @@ function EditPage() {
       .with({ testImage: null }, () => {
         alert("画像を選択してください");
         console.error("画像を選択してください");
-      })
-      .with({ authorNameColor: null }, () => {
-        alert("TOKAI IRASUTOYAの色を選択してください");
-        console.error("TOKAI IRASUTOYAの色を選択してください");
       })
       .otherwise(async () => {
         const formData = new FormData();
