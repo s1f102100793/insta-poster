@@ -30,6 +30,8 @@ export type PostImageCount = 1 | 2;
 
 export type EditImageType = "resizeForInstagram" | "createMockIphone";
 
+export type AuthorNameColor = "black" | "white";
+
 export const api = new Elysia({ prefix: "/api" })
   .group("/login", (router) => {
     router.use(
@@ -135,6 +137,9 @@ export const api = new Elysia({ prefix: "/api" })
         })
         .with("createMockIphone", async () => {
           const backgroundRGBAValue = formData.get("backgroundRGBA");
+          const authorNameColor = formData.get(
+            "authorNameColor",
+          ) as AuthorNameColor;
           if (typeof backgroundRGBAValue !== "string") {
             set.status = 400;
             throw new Error("backgroundRGBA is required and must be a string");
@@ -143,6 +148,7 @@ export const api = new Elysia({ prefix: "/api" })
           return await sharpUseCase.createMockIphoneHomeImage(
             image,
             backgroundRGBA,
+            authorNameColor,
           );
         })
         .run();

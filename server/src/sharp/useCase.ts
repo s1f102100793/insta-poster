@@ -1,5 +1,5 @@
 import { sharpUtils } from ".";
-import { RGBA } from "../api";
+import { AuthorNameColor, RGBA } from "../api";
 import { googlePhotosUseCase } from "../google/photosUseCase";
 import { ImageSizes, paddingSize } from "../service/imageSizes";
 
@@ -60,6 +60,7 @@ export const sharpUseCase = {
   async createMockIphoneHomeImage(
     screenshotImage: File,
     backgroundColor: RGBA,
+    authorNameColor: AuthorNameColor,
   ): Promise<Buffer> {
     const screenshotImageBuffer = await screenshotImage.arrayBuffer();
     const resizeScreenshotBuffer = await sharpUtils.resizeImage(
@@ -82,6 +83,7 @@ export const sharpUseCase = {
     const compositeImage = await sharpUtils.compositeWithBackgroundImage(
       mockImageBuffer,
       backgroundColor,
+      authorNameColor,
     );
     return compositeImage;
   },

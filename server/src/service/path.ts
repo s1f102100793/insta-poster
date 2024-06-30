@@ -1,3 +1,4 @@
+import { AuthorNameColor } from "../api";
 import { env } from "../env";
 import { convertUnitNameToRomaji } from "./memberName";
 
@@ -38,5 +39,6 @@ export const path = {
     };
   },
   mockImagePath: `${cwd}/assets/mock.png`,
-  backgroundImagePath: `${cwd}/assets/background.png`,
+  backgroundImagePath: (authorNameColor: AuthorNameColor) =>
+    `${cwd}/assets/${authorNameColor}AuthorNameImage.png`,
 };

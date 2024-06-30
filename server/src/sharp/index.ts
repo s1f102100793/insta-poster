@@ -5,7 +5,7 @@ import { promises as fs } from "fs";
 import { path as pathUtils } from "../service/path";
 import { ImageSizeType, ImageSizes } from "../service/imageSizes";
 import { P, match } from "ts-pattern";
-import { RGBA } from "../api";
+import { AuthorNameColor, RGBA } from "../api";
 interface sharpMetadata {
   width: number;
   height: number;
@@ -119,7 +119,11 @@ export const sharpUtils = {
       })
       .toBuffer();
   },
-  async replaceColor(imageBuffer: Buffer, replacementColor: RGBA) {
+  async replaceColor(
+    imageBuffer: Buffer,
+    targetColor: RGBA,
+    replacementColor: RGBA,
+  ) {
     let image = sharp(imageBuffer);
     const { width, height, channels } = await image.metadata();
 
@@ -132,12 +136,12 @@ export const sharpUtils = {
     }
 
     const raw = await image.raw().toBuffer();
-    const targetColor: [number, number, number, number] = [255, 255, 255, 1];
 
     for (let i = 0; i < raw.length; i += 3) {
       const currentColor = [raw[i], raw[i + 1], raw[i + 2]];
       const isTargetColor = currentColor.every(
-        (value, index) => value === targetColor[index],
+        (value, index) =>
+          value === [targetColor.r, targetColor.g, targetColor.b][index],
       );
 
       if (isTargetColor) {
@@ -205,13 +209,17 @@ export const sharpUtils = {
   async compositeWithBackgroundImage(
     mockImageBuffer: Buffer,
     backgroundColor: RGBA,
+    authorNameColor: AuthorNameColor,
   ) {
-    const backgroundImageBuffer = await fs.readFile(
-      pathUtils.backgroundImagePath,
-    );
+    let backgroundImagePath = pathUtils.backgroundImagePath(authorNameColor);
+    const targetColor = authorNameColor === "black"
+    ? { r: 255, g: 255, b: 255, alpha: 1 }
+    : { r: 0, g: 0, b: 0, alpha: 1 };  
+    const backgroundImageBuffer = await fs.readFile(backgroundImagePath);
 
     const resultBuffer = await sharpUtils.replaceColor(
       backgroundImageBuffer,
+      targetColor,
       backgroundColor,
     );
 

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { ChromePicker, ColorResult, RGBColor } from "react-color";
 
 export type EditImageType = "resizeForInstagram" | "createMockIphone";
+type AuthorNameColor = "black" | "white";
 
 function EditPage() {
   const navigate = useNavigate();
@@ -22,9 +23,11 @@ function EditPage() {
     b: 255,
     a: 1,
   });
+  const [authorNameColor, setAuthorNameColor] =
+    useState<AuthorNameColor | null>(null);
 
   const editImage = () => {
-    match({ editImageType, testImage })
+    match({ editImageType, testImage, authorNameColor })
       .with({ editImageType: null }, () => {
         alert("画像の形状を選択してください");
         console.error("画像の形状を選択してください");
@@ -32,6 +35,10 @@ function EditPage() {
       .with({ testImage: null }, () => {
         alert("画像を選択してください");
         console.error("画像を選択してください");
+      })
+      .with({ authorNameColor: null }, () => {
+        alert("TOKAI IRASUTOYAの色を選択してください");
+        console.error("TOKAI IRASUTOYAの色を選択してください");
       })
       .otherwise(async () => {
         const formData = new FormData();
@@ -46,6 +53,7 @@ function EditPage() {
             alpha: backgroundRGBA.a,
           }),
         );
+        formData.append("authorNameColor", authorNameColor as string);
 
         const response = await postsService.editImage(formData);
         const result = await response.text();
@@ -106,8 +114,21 @@ function EditPage() {
       </div>
       <div className="flex flex-row padding pr-3 gap-6">
         {editImageType === "createMockIphone" && (
-          <div>
-            <ChromePicker color={backgroundRGBA} onChange={handleColorChange} />
+          <div className="flex flex-col gap-6 border-2 border-white p-3 padding h-[400px]">
+            <ChromePicker
+              styles={{ default: { picker: { width: "100%" } } }}
+              color={backgroundRGBA}
+              onChange={handleColorChange}
+            />
+            <GenericSelect<AuthorNameColor>
+              value={authorNameColor}
+              options={[
+                { value: "black", label: "黒" },
+                { value: "white", label: "白" },
+              ]}
+              onChange={setAuthorNameColor}
+              placeholder="TOKAI IRASUTOYAの文字色を選択"
+            />
           </div>
         )}
         <div className="flex flex-col gap-6">
