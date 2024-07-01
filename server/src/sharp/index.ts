@@ -158,8 +158,12 @@ export const sharpUtils = {
       .toBuffer();
     return replacedImage;
   },
-  async validateInstagramImageSize(imageBuffer: ArrayBuffer): Promise<Buffer> {
-    const image = sharp(Buffer.from(imageBuffer));
+  async validateInstagramImageSize(
+    imageBuffer: ArrayBuffer | Buffer,
+  ): Promise<Buffer> {
+    const image = Buffer.isBuffer(imageBuffer)
+      ? sharp(imageBuffer)
+      : sharp(Buffer.from(imageBuffer));
     const metadata = await image.metadata();
 
     const minAspectRatio = 566 / 1080;
