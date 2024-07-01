@@ -12,6 +12,7 @@ import { TextInput } from "./components/TextInput";
 import { BackgroundLayers } from "./components/BackgroundLayers";
 import { Button } from "./components/Button";
 import { useNavigate } from "react-router-dom";
+import { confirmIfEmpty } from "./utils/confirm";
 
 export interface Member {
   memberName: MemberName | "";
@@ -52,7 +53,6 @@ function HomePage() {
 
   const postSns = async (): Promise<void> => {
     if (
-      !youtubeUrl ||
       !title ||
       !postImageCount ||
       members.some((member) => !member.memberName || !member.tagPosition)
@@ -61,6 +61,7 @@ function HomePage() {
       console.error("必須項目が入力されていません");
       return;
     }
+    if (!confirmIfEmpty(youtubeUrl, "YouTube URL")) return;
 
     const isSingleImageRequired = postImageCount === 1 && !firstPostImage;
     const isTripleImageRequired =
