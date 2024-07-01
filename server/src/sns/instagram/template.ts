@@ -9,8 +9,6 @@ export const instagramTemplate = {
     youtubeUrl: string,
     additionalHashTag: string | null,
   ) {
-    const videoId = youtube.getVideoId(youtubeUrl) as string;
-    const youtubeTitle = await youtube.getVideoTitle(videoId);
     const memberNameHashtags = membersData
       .map((member) => `#東海オンエア${member.memberName}`)
       .join(" ");
@@ -22,11 +20,19 @@ export const instagramTemplate = {
 
     let postText = `${memberNameHashtags}
 【${title}】
+`;
 
+    if (youtubeUrl) {
+      const videoId = youtube.getVideoId(youtubeUrl) as string;
+      const youtubeTitle = await youtube.getVideoTitle(videoId);
+      postText += `
 Source: 
 ${youtubeTitle}
 ${youtubeUrl}
+`;
+    }
 
+    postText += `
 #東海いらすとや
 #東海オンエア描いちゃった
 #東海オンエアファン
