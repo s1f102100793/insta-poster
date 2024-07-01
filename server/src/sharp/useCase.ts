@@ -1,6 +1,5 @@
 import { sharpUtils } from ".";
 import { AuthorNameColor, RGBA } from "../api";
-import { googlePhotosUseCase } from "../google/photosUseCase";
 import { ImageSizes, paddingSize } from "../service/imageSizes";
 
 export const sharpUseCase = {
@@ -9,14 +8,16 @@ export const sharpUseCase = {
     outputPath: string,
     imageName: string,
   ) {
-    await sharpUtils.saveImage(imageBuffer, outputPath).catch(async () => {
-      await googlePhotosUseCase
-        .uploadImage(imageBuffer, outputPath)
-        .catch((uploadError) => {
-          throw new Error(
-            `Failed to upload ${imageName}: ${uploadError.message}`,
-          );
-        });
+    await sharpUtils.saveImage(imageBuffer, outputPath).catch(async (error) => {
+      console.error(`Failed to save ${imageName}: ${error.message}`);
+      // googlePhotoを当分使わないのでコメントアウト
+      // await googlePhotosUseCase
+      //   .uploadImage(imageBuffer, outputPath)
+      //   .catch((uploadError) => {
+      //     throw new Error(
+      //       `Failed to upload ${imageName}: ${uploadError.message}`,
+      //     );
+      //   });
     });
   },
   async savePostImage(

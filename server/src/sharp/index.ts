@@ -212,9 +212,10 @@ export const sharpUtils = {
     authorNameColor: AuthorNameColor,
   ) {
     let backgroundImagePath = pathUtils.backgroundImagePath(authorNameColor);
-    const targetColor = authorNameColor === "black"
-    ? { r: 255, g: 255, b: 255, alpha: 1 }
-    : { r: 0, g: 0, b: 0, alpha: 1 };  
+    const targetColor =
+      authorNameColor === "black"
+        ? { r: 255, g: 255, b: 255, alpha: 1 }
+        : { r: 0, g: 0, b: 0, alpha: 1 };
     const backgroundImageBuffer = await fs.readFile(backgroundImagePath);
 
     const resultBuffer = await sharpUtils.replaceColor(
