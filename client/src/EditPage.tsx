@@ -57,6 +57,7 @@ function EditPage() {
           }),
         );
         formData.append("authorNameColor", authorNameColor as string);
+        alert("画像を編集します");
 
         const response = await postsService.editImage(formData);
         const result = await response.text();
