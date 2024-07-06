@@ -6,10 +6,11 @@ import { convertToInstagramId } from "../../service/memberName";
 export const getInstagramUserTags = (members: Member[]) => {
   const positionCounts: Record<TagPosition, number> = {
     "bottom-left": 0,
-    "bottom-right": 0,
-    "top-right": 0,
-    "top-left": 0,
     "bottom-center": 0,
+    "bottom-right": 0,
+    "top-left": 0,
+    "top-center": 0,
+    "top-right": 0,
   };
 
   const memberTags = members
