@@ -158,6 +158,50 @@ export const sharpUtils = {
       .toBuffer();
     return replacedImage;
   },
+  async replaceCornersColor(
+    imageBuffer: Buffer,
+    backgroundColor: RGBA,
+  ): Promise<Buffer> {
+    const paddingSize: number = 10;
+    const { r, g, b, alpha } = backgroundColor;
+    const colorFill = `rgba(${r},${g},${b},${alpha})`;
+
+    const image = sharp(imageBuffer);
+    const metadata = await image.metadata();
+
+    const overlays = [
+      {
+        input: Buffer.from(
+          `<svg><rect x="0" y="0" width="${paddingSize}" height="${paddingSize}" fill="${colorFill}" /></svg>`,
+        ),
+        top: 0,
+        left: 0,
+      },
+      {
+        input: Buffer.from(
+          `<svg><rect x="0" y="0" width="${paddingSize}" height="${paddingSize}" fill="${colorFill}" /></svg>`,
+        ),
+        top: 0,
+        left: metadata.width! - paddingSize,
+      },
+      {
+        input: Buffer.from(
+          `<svg><rect x="0" y="0" width="${paddingSize}" height="${paddingSize}" fill="${colorFill}" /></svg>`,
+        ),
+        top: metadata.height! - paddingSize,
+        left: 0,
+      },
+      {
+        input: Buffer.from(
+          `<svg><rect x="0" y="0" width="${paddingSize}" height="${paddingSize}" fill="${colorFill}" /></svg>`,
+        ),
+        top: metadata.height! - paddingSize,
+        left: metadata.width! - paddingSize,
+      },
+    ];
+
+    return await image.composite(overlays).toBuffer();
+  },
   async validateInstagramImageSize(
     imageBuffer: ArrayBuffer | Buffer,
   ): Promise<Buffer> {
