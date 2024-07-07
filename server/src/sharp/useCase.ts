@@ -68,8 +68,12 @@ export const sharpUseCase = {
       screenshotImageBuffer,
       ImageSizes.unifiedScreenshotSize,
     );
-    const paddedScreenshotBuffer = await sharpUtils.extendImage(
+    const replaceCornersColorBuffer = await sharpUtils.replaceCornersColor(
       resizeScreenshotBuffer,
+      backgroundColor,
+    );
+    const paddedScreenshotBuffer = await sharpUtils.extendImage(
+      replaceCornersColorBuffer,
       {
         top: paddingSize,
         bottom: paddingSize,

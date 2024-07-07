@@ -38,7 +38,7 @@ export const path = {
       secondPostImageEnd: `complete/${unitNameRomaji}_${titleEncoded}_2.png`,
     };
   },
-  mockImagePath: `${cwd}/assets/mock.png`,
+  mockImagePath: `${cwd}/assets/iphone15_mock.png`,
   backgroundImagePath: (authorNameColor: AuthorNameColor) =>
     `${cwd}/assets/${authorNameColor}AuthorNameImage.png`,
 };

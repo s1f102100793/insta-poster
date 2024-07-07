@@ -244,12 +244,8 @@ export const sharpUtils = {
       .otherwise(async () => await image.toBuffer());
   },
   async compositeWithMockImage(screenshotBuffer: Buffer) {
-    const resizeScreenshotBuffer = await sharpUtils.resizeImage(
-      screenshotBuffer,
-      ImageSizes.iphoneMockupBaseSize,
-    );
     const mockImageBuffer = await fs.readFile(pathUtils.mockImagePath);
-    const compositeImage = await sharp(resizeScreenshotBuffer)
+    const compositeImage = await sharp(screenshotBuffer)
       .composite([{ input: mockImageBuffer, blend: "over" }])
       .toBuffer();
     return compositeImage;

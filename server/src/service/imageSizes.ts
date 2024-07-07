@@ -1,4 +1,4 @@
-export const paddingSize = 100;
+export const paddingSize = 250;
 
 export type ImageSizeType = {
   width: number;
@@ -7,11 +7,7 @@ export type ImageSizeType = {
 
 export const ImageSizes = {
   unifiedScreenshotSize: {
-    width: 870,
-    height: 1882,
-  },
-  iphoneMockupBaseSize: {
-    width: 850 + 2 * paddingSize,
-    height: 1850 + 2 * paddingSize,
+    width: 830,
+    height: 1797,
   },
 };
