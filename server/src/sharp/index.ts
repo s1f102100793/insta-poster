@@ -6,6 +6,7 @@ import { path as pathUtils } from "../service/path";
 import { ImageSizeType, ImageSizes } from "../service/imageSizes";
 import { P, match } from "ts-pattern";
 import { AuthorNameColor, RGBA } from "../api";
+
 interface sharpMetadata {
   width: number;
   height: number;
@@ -204,17 +205,21 @@ export const sharpUtils = {
   },
   async validateInstagramImageSize(
     imageBuffer: ArrayBuffer | Buffer,
+    targetSizeMB: number = 1,
+    initialQuality: number = 70,
+    qualityStep: number = 5,
   ): Promise<Buffer> {
     const image = Buffer.isBuffer(imageBuffer)
       ? sharp(imageBuffer)
       : sharp(Buffer.from(imageBuffer));
     const metadata = await image.metadata();
 
+    const bytesInMB = 1024 * 1024;
     const minAspectRatio = 566 / 1080;
     const maxAspectRatio = 1350 / 1080;
     const imageAspectRatio = metadata.height! / metadata.width!;
 
-    return match(imageAspectRatio)
+    const processedImage = await match(imageAspectRatio)
       .with(
         P.when((ratio) => ratio < minAspectRatio),
         async () => {
@@ -242,6 +247,27 @@ export const sharpUtils = {
         },
       )
       .otherwise(async () => await image.toBuffer());
+
+    let compressedBuffer: Buffer;
+    let processedImageBuffer: Buffer = processedImage;
+    let currentSizeMB = processedImageBuffer.length / bytesInMB;
+
+    while (currentSizeMB > targetSizeMB && initialQuality >= 10) {
+      compressedBuffer = await sharp(processedImageBuffer)
+        .jpeg({ quality: initialQuality })
+        .toBuffer();
+
+      currentSizeMB = compressedBuffer.length / bytesInMB;
+
+      if (currentSizeMB <= targetSizeMB) {
+        return compressedBuffer;
+      }
+
+      initialQuality -= qualityStep;
+      processedImageBuffer = compressedBuffer;
+    }
+
+    return processedImageBuffer;
   },
   async compositeWithMockImage(screenshotBuffer: Buffer) {
     const mockImageBuffer = await fs.readFile(pathUtils.mockImagePath);
